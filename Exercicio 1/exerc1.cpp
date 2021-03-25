@@ -3,6 +3,8 @@
 #include <fstream>
 #include <iomanip>
 
+#include "gsiedel.h"
+
 double f(double x);
 
 constexpr double dx = {0.1};
