@@ -30,7 +30,7 @@ void GS_Solver(double** A, const int m, const int n, double* B, const unsigned i
 
 	while(!teste && counter<20){
 		teste = true;
-		std::cout << "Iteracao " << std::setprecision(10) << counter << '\n';
+		//std::cout << "Iteracao " << std::setprecision(10) << counter << '\n';
 		for (int i = 0; i < m; i++){
 			Y[i] = (B[i] / A[i][i]);
 			for (int j = 0; j < n; j++){
@@ -41,11 +41,11 @@ void GS_Solver(double** A, const int m, const int n, double* B, const unsigned i
 			}
 			auto res = std::fabs(((X[i] - E[i]) / X[i])) <= eps;
 			teste = teste & res;
-			std::cout<< "x" << i + 1 << " = " << Y[i] << '\n';
+			//std::cout<< "x" << i + 1 << " = " << Y[i] << '\n';
 			E[i] = X[i];
 		}
 		counter++;
-		std::cout << '\n';
+		//std::cout << '\n';
 	}
 	delete[] E;
 	delete[] Y;
