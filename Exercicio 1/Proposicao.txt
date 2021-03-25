@@ -1,0 +1,11 @@
+Resolva, para diferentes Δx e Δt, o problema abaixo utilizando:
+	-esquema implícito
+	-esquema explícito
+	-Crank-Nicolson
+	
+Dados:
+dT/dx = d^2T/d^2x , 0 < t <= 1
+T(0,t) = 0
+T(1,0) = 0
+T(x,0) = f(x) = |x, se x <= 0.5
+                | 1-x, se x > 0.5
