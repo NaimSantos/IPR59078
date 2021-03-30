@@ -4,16 +4,14 @@ import matplotlib.animation as ani
 
 
 # Variáveis do domínio da simulação:
-r = 0.5 # condição CFL
-dx = 0.05 # intervalo em x
-dt = 1 # passo de tempo
-L = 1.0 # comprimento total da placa
-ti = 0.0 # tempo inicial da simulação
-tf = int(100.0) #tempo final da simulação
-N  = int(L/dx + 1) # número de nós da malha (intervalos + 1)
-I = (tf - ti) / dt # número de passos de tempo
-
-print(N)
+r = 0.5             # condição CFL
+dx = 0.05            # intervalo em x
+dt = 1               # passo de tempo
+L = 1.0              # comprimento total da placa
+ti = 0.0             # tempo inicial da simulação
+tf = int(100.0)      #tempo final da simulação
+N  = int(L/dx + 1)   # número de nós da malha (intervalos + 1)
+I = (tf - ti) / dt   # número de passos de tempo
 
 # Dados do problema:
 kappa = 0.6
@@ -46,7 +44,7 @@ X = np.linspace(0.0, L, N)
 ts = np.arange(0, 100, 1)
 
 
-j = 0 
+j = 0
 while j < N:
     T[0][j]  = f(j*dx)
     j += 1
@@ -56,7 +54,7 @@ explictsolver(T, 0.5, N, tf)
 # print(T)
 
 x_ax = X 
-y_ax = T[0,  :]
+y_ax = T[0, :]
 # plt.plot(x_ax, y_ax, "r") # red diamonds
 # plt.title("Perfil de temperatura da placa unidimensional")
 # plt.xlabel("Comprimento", fontsize = 13)
@@ -85,7 +83,39 @@ def animate(i):
     return line, time_text
 
 
-#animate(X, T)
 anim = ani.FuncAnimation(fig, animate, init_func=init, frames=100, interval=1, blit=True)
 anim.save('temperatura.gif')
 plt.show()
+
+
+
+def TDMA(a, b, c, d):
+
+    a = a.astype(’double’)
+    b = b.astype(’double’)
+    c = c.astype(’double’)
+    d = d.astype(’double’)
+
+    # Obtemos a ordem do sistema
+    n=np.shape(a)[0]
+
+    #Inicialização dos vetores auxiliares
+    cl=np.zeros(n)
+    dl=np.zeros(n)
+    x=np.zeros(n)
+
+    #Calcular cl e dl (auxiliares)
+    cl[0]=c[0]/b[0]
+    for i in np.arange(1,n-1,1):
+       cl[i]=c[i]/(b[i]-a[i]*cl[i-1])
+
+    dl[0]=d[0]/b[0]
+    for i in np.arange(1,n,1):
+       dl[i]=(d[i]-a[i]*dl[i-1])/(b[i]-a[i]*cl[i-1])
+
+    #Fazer a substituição reversa para obter a solução x
+    x[n-1]=dl[n-1]
+    for i in np.arange(n-2,-1,-1):
+       x[i]=dl[i]-cl[i]*x[i+1]
+
+    return x
