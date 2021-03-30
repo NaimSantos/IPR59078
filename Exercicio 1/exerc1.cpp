@@ -14,7 +14,7 @@ double f(double x);
 void explictsolver(vector<double>& Temp, const double r = 0.5, const int tempo = 10);
 void implicitsolver(vector<double>& U, const vector<double>& a, const vector<double>& b, const vector<double>& c, const int tempo = 10);
 void printvec(const vector<double>& Vec);
-
+void reset_first_and_last(vector<double>& Vec);
 
 //Dados do domínio:
 constexpr double dx {0.1}; //refinamento da malha espacial
@@ -74,7 +74,7 @@ int main (int argc, char* argv[]){
 
 void explictsolver(vector<double>& Temp, const double r, const int tempo){
 	printvec(Temp);
-	for (int iter = 1; iter < tempo; iter++){
+	for (int iter = 1; iter <= tempo; iter++){
 		for (int i = 1; i < N - 1; i++ ){
 			Temp[i] = Temp[i] + r*(Temp[i-1] - 2.0*Temp[i] + Temp[i+1] );
 		}
@@ -84,8 +84,9 @@ void explictsolver(vector<double>& Temp, const double r, const int tempo){
 
 void implicitsolver(vector<double>& U, const vector<double>& a, const vector<double>& b, const vector<double>& c, const int tempo){
 	printvec(U);
-	for (int iter = 1; iter < tempo; iter++){
+	for (int iter = 1; iter <= tempo; iter++){
 		tdma_solver(a, b, c, U);
+		reset_first_and_last(U);
 		printvec(U);
 	}
 }
@@ -101,7 +102,11 @@ void printvec(const vector<double>& Vec){
 	std::cout << std::endl;
 }
 
-
+void reset_first_and_last(vector<double>& Vec){
+	auto n = Vec.size();
+	//std::cout << "\nThis vector has " << n << " elements\n";
+	Vec[0] = Vec[n-1] = 0.0;
+}
 
 /*
 void linspacefill(vector<double>& Vec, const int Num, const double xi, const double xf){
