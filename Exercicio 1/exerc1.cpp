@@ -47,7 +47,7 @@ int main (int argc, char* argv[]){
 
 	printvec(Temperature);
 	for (int i = 1; i < 100; i++){
-		explictsolver(Temperature, 0.25);
+		explictsolver(Temperature, 0.5);
 		printvec(Temperature);
 	}
 
