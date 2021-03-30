@@ -5,14 +5,15 @@ import matplotlib.animation as ani
 
 # Variáveis do domínio da simulação:
 r = 0.5 # condição CFL
-dx = 0.1 # intervalo em x
+dx = 0.05 # intervalo em x
 dt = 1 # passo de tempo
 L = 1.0 # comprimento total da placa
 ti = 0.0 # tempo inicial da simulação
-tf = int(20.0) #tempo final da simulação
+tf = int(100.0) #tempo final da simulação
 N  = int(L/dx + 1) # número de nós da malha (intervalos + 1)
 I = (tf - ti) / dt # número de passos de tempo
 
+print(N)
 
 # Dados do problema:
 kappa = 0.6
@@ -43,8 +44,7 @@ def f(x):
 T = np.zeros((tf, N)) #Array para temperaturas, N elementos, 100 tempos
 X = np.linspace(0.0, L, N)
 ts = np.arange(0, 100, 1)
-print(X)
-print(ts)
+
 
 j = 0 
 while j < N:
@@ -83,6 +83,6 @@ def animate(i):
 
 
 #animate(X, T)
-anim = ani.FuncAnimation(fig, animate, init_func=init, frames=20, interval=1, blit=True)
+anim = ani.FuncAnimation(fig, animate, init_func=init, frames=100, interval=1, blit=True)
 anim.save('temperatura.gif')
 plt.show()
