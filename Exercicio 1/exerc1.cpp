@@ -6,24 +6,22 @@
 
 using std::vector;
 
-//#include "gsiedel.hpp"
 #include "tdma.hpp"
 
 double f(double x);
-//void linspacefill(vector<double>& Vec, const int Num, const double xi = 0.0, const double xf = 1.0);
 void explictsolver(vector<double>& Temp, const double r = 0.5, const int tempo = 10);
 void implicitsolver(vector<double>& U, const vector<double>& a, const vector<double>& b, const vector<double>& c, const int tempo = 10);
 void printvec(const vector<double>& Vec);
 void reset_first_and_last(vector<double>& Vec);
 
 //Dados do domínio:
-constexpr double dx {0.1}; //refinamento da malha espacial
-constexpr double dt {1};	//passo de tempo
-constexpr double L {1.0};	//comprimento total do domínio
-constexpr double ti {0.0};	//tempo inicial da simulação
-constexpr double tf {100.0};	//tempo final de simulação
-constexpr auto N  = L/dx + 1;	//número de nós da malha (intervalos + 1)
-constexpr double I = (tf - ti) / dt;	//número de passos de tempo
+constexpr double dx {0.1};              //refinamento da malha espacial
+constexpr double dt {1};                //passo de tempo
+constexpr double L {1.0};               //comprimento total do domínio
+constexpr double ti {0.0};              //tempo inicial da simulação
+constexpr double tf {100.0};            //tempo final de simulação
+constexpr auto N  = L/dx + 1;           //número de nós da malha (intervalos + 1)
+constexpr double I = (tf - ti) / dt;    //número de passos de tempo
 
 //Dados do problema:
 constexpr double kappa {0.6};
@@ -36,9 +34,8 @@ constexpr double T_zero {20.0};
 int main (int argc, char* argv[]){
 
 	const auto alfa = kappa / (rho * cp);
-	const auto r = alfa * dt / (dx * dx);
+	const auto r = (alfa * dt) / (dx * dx);
 	//std::cout << "dt = " << dt << ", dx = " << dx  << ", alfa = " << alfa << ", CFL (r) = " << r << std::endl;
-
 	const auto rtest = 0.5;
 
 	// -----------------Solução 1 ---------------------//
@@ -49,17 +46,17 @@ int main (int argc, char* argv[]){
 	for (int i = 0; i < n; i++){
 		Temperature[i] = f(i*dx);
 	}
-	auto T2 = Temperature; //copia para testar via TDMA
+	auto T2 = Temperature; //cópia do vetor para o esquema implícito
 
 	//Invocar o solver explícito:
-	std::cout << "\nExibindo solucao explicita:\n";
+	std::cout << "\nSolucao explicita:\n";
 	explictsolver(Temperature, rtest, 10);
 
 
 	// -----------------Solução 2 ---------------------//
-	vector<double> Dsup (N, (-rtest));	//Diagonal superior, inicializada em -r
-	vector<double> Dmain (N, (1 + 2*rtest));	//Diagonal principal, inicializada em 1 + 2r
-	vector<double> Dinf (N, (-rtest));	//Diagonal inferior, inicializada em -r
+	vector<double> Dsup (N, (-rtest));          //Diagonal superior, inicializada em -r
+	vector<double> Dmain (N, (1 + 2*rtest));    //Diagonal principal, inicializada em 1 + 2r
+	vector<double> Dinf (N, (-rtest));          //Diagonal inferior, inicializada em -r
 
 
 	//Corrigimos os termos cuja inicialização é diferente:
@@ -67,9 +64,12 @@ int main (int argc, char* argv[]){
 	Dsup[0] = Dinf[n-1] = 0.0;
 
 	//Invoca o solver implicito:
-	std::cout << "\nExibindo solucao implicita:\n";
+	std::cout << "\nSolucao implicita:\n";
 	implicitsolver(T2, Dsup, Dmain, Dinf, 10);
+}
 
+double f(double x){
+	return (x <= 0.5) ? (x) : (1 - x);
 }
 
 void explictsolver(vector<double>& Temp, const double r, const int tempo){
@@ -91,32 +91,12 @@ void implicitsolver(vector<double>& U, const vector<double>& a, const vector<dou
 	}
 }
 
-
-double f(double x){
-	return (x <= 0.5) ? (x) : (1 - x);
-}
-
 void printvec(const vector<double>& Vec){
 	for (auto& x : Vec)
 		std::cout << std::setw(10) << std::setprecision(5) << x << ' ';
 	std::cout << std::endl;
 }
 
-void reset_first_and_last(vector<double>& Vec){
-	auto n = Vec.size();
-	//std::cout << "\nThis vector has " << n << " elements\n";
-	Vec[0] = Vec[n-1] = 0.0;
+void reset_first_and_last(vector<double>& V){
+	V[0] = V[V.size()-1] = 0.0;
 }
-
-/*
-void linspacefill(vector<double>& Vec, const int Num, const double xi, const double xf){
-	auto h = (xf - xi) / Num;
-	auto n = Vec.size();
-	for (int i = 0; i < n; i++){
-		Vec[i] = xi + i*h;
-	}
-}
-//Distribuições espaciais e temporais:
-//linspacefill(X, N, 0.0, L);
-//linspacefill(t, I, ti, tf);
-*/
