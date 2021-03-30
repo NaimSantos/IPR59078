@@ -70,16 +70,19 @@ plt.xlabel("Comprimento", fontsize = 11)
 plt.ylabel("Temperatura", fontsize = 11)
 ax = plt.axes(xlim = (0, 1.0), ylim=(0, 0.5))
 line, = ax.plot([], [], lw=2)
+time_text = ax.text(0.02, 0.95, '', transform=ax.transAxes)
 
 def init():
     line.set_data([], [])
-    return line,
+    time_text.set_text('')
+    return line, time_text
 
 def animate(i):
     x = X
     y = T[i, :]
+    time_text.set_text('t = % .01f s' % ts[i])
     line.set_data(x, y)
-    return line,
+    return line, time_text
 
 
 #animate(X, T)
