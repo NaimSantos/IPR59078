@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
-#import matplotlib.animation as ani
-from matplotlib import animation
+import matplotlib.animation as ani
+
 
 # Variáveis do domínio da simulação:
 r = 0.5 # condição CFL
@@ -66,8 +66,8 @@ y_ax = T[0,  :]
 
 fig = plt.figure()
 plt.title("Perfil de temperatura da placa unidimensional")
-plt.xlabel("Comprimento", fontsize = 13)
-plt.ylabel("Temperatura", fontsize = 13)
+plt.xlabel("Comprimento", fontsize = 11)
+plt.ylabel("Temperatura", fontsize = 11)
 ax = plt.axes(xlim = (0, 1.0), ylim=(0, 0.5))
 line, = ax.plot([], [], lw=2)
 
@@ -83,6 +83,6 @@ def animate(i):
 
 
 #animate(X, T)
-anim = animation.FuncAnimation(fig, animate, init_func=init, frames=20, interval=1, blit=True)
-anim.save(r'C:\Users\naims\Documents\Github\MNED-doutorado\Exercicio 1\graf.gif')
+anim = ani.FuncAnimation(fig, animate, init_func=init, frames=20, interval=1, blit=True)
+anim.save('temperatura.gif')
 plt.show()
