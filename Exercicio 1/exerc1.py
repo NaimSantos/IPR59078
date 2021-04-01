@@ -22,6 +22,27 @@ g = 100000
 T_zero = 20.0
 
 
+def f(x):
+    if x <= 0.5:
+        return (x)
+    else:
+        return (1 - x)
+
+
+def fillbounds(T, f, N):
+    j = 0
+    while j < N:
+        T[0][j]  = f(j*dx)
+        j += 1
+
+def plotfxy(eixo_x, eixo_y):
+    plt.plot(eixo_x, eixo_y, "r") # red diamonds
+    plt.title("Perfil de temperatura da placa unidimensional")
+    plt.xlabel("Comprimento", fontsize = 13)
+    plt.ylabel("Temperatura", fontsize = 13)
+    plt.show()
+
+
 # Solver explicito para a temperatura:
 def explictsolver(Arr, cfl, N, tf):
     i = 1 # i = tempo = linhas
@@ -32,35 +53,17 @@ def explictsolver(Arr, cfl, N, tf):
             j += 1
         i += 1
 
-def f(x):
-    if x <= 0.5:
-        return (x)
-    else:
-        return (1 - x)
-
-
 T = np.zeros((tf, N)) #Array para temperaturas, N elementos, 100 tempos
 X = np.linspace(0.0, L, N)
 ts = np.arange(0, 100, 1)
 
 
-j = 0
-while j < N:
-    T[0][j]  = f(j*dx)
-    j += 1
-
-
 explictsolver(T, 0.5, N, tf)
+# fillbounds(T, f, N)
 # print(T)
 
 x_ax = X 
 y_ax = T[0, :]
-# plt.plot(x_ax, y_ax, "r") # red diamonds
-# plt.title("Perfil de temperatura da placa unidimensional")
-# plt.xlabel("Comprimento", fontsize = 13)
-# plt.ylabel("Temperatura", fontsize = 13)
-
-# plt.show()
 
 fig = plt.figure()
 plt.title("Perfil de temperatura da placa unidimensional")
@@ -88,34 +91,4 @@ anim.save('temperatura.gif')
 plt.show()
 
 
-
-def TDMA(a, b, c, d):
-
-    a = a.astype(’double’)
-    b = b.astype(’double’)
-    c = c.astype(’double’)
-    d = d.astype(’double’)
-
-    # Obtemos a ordem do sistema
-    n=np.shape(a)[0]
-
-    #Inicialização dos vetores auxiliares
-    cl=np.zeros(n)
-    dl=np.zeros(n)
-    x=np.zeros(n)
-
-    #Calcular cl e dl (auxiliares)
-    cl[0]=c[0]/b[0]
-    for i in np.arange(1,n-1,1):
-       cl[i]=c[i]/(b[i]-a[i]*cl[i-1])
-
-    dl[0]=d[0]/b[0]
-    for i in np.arange(1,n,1):
-       dl[i]=(d[i]-a[i]*dl[i-1])/(b[i]-a[i]*cl[i-1])
-
-    #Fazer a substituição reversa para obter a solução x
-    x[n-1]=dl[n-1]
-    for i in np.arange(n-2,-1,-1):
-       x[i]=dl[i]-cl[i]*x[i+1]
-
-    return x
+res = np.linalg.solve()
