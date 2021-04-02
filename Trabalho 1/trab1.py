@@ -43,7 +43,9 @@ def plotfxy(eixo_x, eixo_y):
     plt.title("Perfil de temperatura da placa unidimensional")
     plt.xlabel("Comprimento", fontsize = 12)
     plt.ylabel("Temperatura", fontsize = 12)
+    plt.savefig('Grafico1.png')
     plt.show()
+
 
 # Solver explícito para a temperatura:
 def explictsolver(Arr, cfl, N, tf):
@@ -97,11 +99,13 @@ def solveimplicitly(r):
         i = i+1
 
     implictsolver(A, B)
+    plotfxy(X, T[nsteps-1])
+
 
 
 
 solveimplicitly(r1)
-plotfxy(X, T[nsteps-1])
+
 
 # Animação :
 # x_ax = X
