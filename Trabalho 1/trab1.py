@@ -60,7 +60,7 @@ T2 = np.zeros((nsteps, N))  # copia para o Cranck Nicolson
 X = np.linspace(0.0, L, N)  # Vetor das posições linearmente espaçado
 
 # Solver implícito:
-def implictsolver(A, B, C):
+def implictsolver(A, B):
     T[0] = B.reshape(1, N)
     t = 1
     while t < nsteps:
@@ -78,6 +78,7 @@ def solveimplicitly(r):
     # Preenchimento da matriz de termos independentes:
     B = np.full((N, 1), T0)
     C = np.full((N, 1), T0)
+
     # Preenchimento da matriz de coeficientes:
     A = np.zeros((N,N))
     A[0][0] = -3.0
@@ -94,43 +95,38 @@ def solveimplicitly(r):
         A[i][j+2] = -r
         j = j+1
         i = i+1
-    #print("A: ", A)
-    #print("B antes: ", B)
-    implictsolver(A, B, C)
+
+    implictsolver(A, B)
 
 
 
 solveimplicitly(r1)
 plotfxy(X, T[nsteps-1])
 
-# explictsolver(T, 0.5, N, tf)
-# fillbounds(T, f, N)
-# print(T)
+# Animação :
+# x_ax = X
+# y_ax = T[0, :]
+# ts = np.arange(0, nsteps, 1)
 
+# fig = plt.figure()
+# plt.title("Perfil de temperatura da placa unidimensional")
+# plt.xlabel("Comprimento", fontsize = 11)
+# plt.ylabel("Temperatura", fontsize = 11)
+# ax = plt.axes(xlim = (0, 0.03), ylim=(20, 100))
+# line, = ax.plot([], [], lw=2)
+# time_text = ax.text(0.01,01.0, '', transform=ax.transAxes)
 
-x_ax = X 
-y_ax = T[0, :]
-ts = np.arange(0, nsteps, 1)
+# def init():
+    # line.set_data([], [])
+    # time_text.set_text('')
+    # return line, time_text
 
-fig = plt.figure()
-plt.title("Perfil de temperatura da placa unidimensional")
-plt.xlabel("Comprimento", fontsize = 11)
-plt.ylabel("Temperatura", fontsize = 11)
-ax = plt.axes(xlim = (0, 0.03), ylim=(20, 100))
-line, = ax.plot([], [], lw=2)
-time_text = ax.text(0.01,01.0, '', transform=ax.transAxes)
-
-def init():
-    line.set_data([], [])
-    time_text.set_text('')
-    return line, time_text
-
-def animate(i):
-    x = X
-    y = T[i, :]
-    time_text.set_text('t = % .01f s' % ts[i])
-    line.set_data(x, y)
-    return line, time_text
+# def animate(i):
+    # x = X
+    # y = T[i, :]
+    # time_text.set_text('t = % .01f s' % ts[i])
+    # line.set_data(x, y)
+    # return line, time_text
 
 #anim = ani.FuncAnimation(fig, animate, init_func=init, frames=100, #interval=1, blit=True)
 #anim.save('temperatura.gif')
