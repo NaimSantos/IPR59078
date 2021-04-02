@@ -5,7 +5,7 @@ import matplotlib.animation as ani
 
 # Variáveis do domínio da simulação:
 L = 0.03                  # comprimento total da placa
-N  = 25                   # número de nós da malha (intervalos + 1)
+N  = 25                   # número de nós da malha
 ti = 0.0                  # tempo inicial da simulação
 tf = 500.0                # tempo final da simulação
 dx = L / (N - 1)          # comprimento do intervalo
@@ -22,21 +22,9 @@ T0 = 20.0
 TL = 20.0
 alpha = kappa/(rho*cp)
 r1 = (alpha*dt)/(dx*dx)         # coeficiente r do método implícito
-r2 = (alpha*dt) / (2*dx*dx)     # coeficiente r do Crank-Nicolson
+r2 = (alpha*dt)/(2*dx*dx)       # coeficiente r do Crank-Nicolson
 gamma = 3.0 + ((2*h*dx)/kappa)
 llambda = (g*dt)/(rho*cp)
-
-def f(x):
-    if x <= 0.5:
-        return (x)
-    else:
-        return (1 - x)
-
-def fillbounds(T, f, N):
-    j = 0
-    while j < N:
-        T[0][j]  = f(j*dx)
-        j += 1
 
 def plotfxy(eixo_x, eixo_y):
     plt.plot(eixo_x, eixo_y, "r")
@@ -46,16 +34,6 @@ def plotfxy(eixo_x, eixo_y):
     plt.savefig('Grafico1.png')
     plt.show()
 
-
-# Solver explícito para a temperatura:
-def explictsolver(Arr, cfl, N, tf):
-    i = 1
-    while i < tf :
-        j = 1 # começamos no segundo elemento
-        while j < (N - 1):
-            Arr[i][j] = Arr[i-1][j] + cfl*(Arr[i-1][j-1] - 2.0*Arr[i-1][j] + Arr[i-1][j+1] )
-            j += 1
-        i += 1
 
 T = np.zeros((nsteps, N))   # Array para temperaturas, com N elementos por linha em nsteps linhas
 T2 = np.zeros((nsteps, N))  # copia para o Cranck Nicolson
