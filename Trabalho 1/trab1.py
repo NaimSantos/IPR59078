@@ -47,9 +47,9 @@ def plotfxy(eixo_x, eixo_y):
 
 # Solver explícito para a temperatura:
 def explictsolver(Arr, cfl, N, tf):
-    i = 1 # i = tempo = linhas
+    i = 1
     while i < tf :
-        j = 1 #comecamos no segundo elemento
+        j = 1 # começamos no segundo elemento
         while j < (N - 1):
             Arr[i][j] = Arr[i-1][j] + cfl*(Arr[i-1][j-1] - 2.0*Arr[i-1][j] + Arr[i-1][j+1] )
             j += 1
@@ -63,19 +63,19 @@ X = np.linspace(0.0, L, N)  # Vetor das posições linearmente espaçado
 def implictsolver(A, B, C):
     T[0] = B.reshape(1, N)
     t = 1
-    while t < nsteps :
+    while t < nsteps:
         B[0][0] = 0.0
         B[N-1][0] = (2*h*dx*T0)/kappa
         i = 1
         while i < N-1 :
-            B[i][0] = C[i][0] + llambda
+            B[i][0] = B[i][0] + llambda
             i = i + 1
-        C = np.linalg.solve(A, B)
-        T[t] = C.reshape(1, N)
+        B = np.linalg.solve(A, B)
+        T[t] = B.reshape(1, N)
         t = t + 1
 
 def solveimplicitly(r):
-    # preenchimento da matriz de termos independentes:
+    # Preenchimento da matriz de termos independentes:
     B = np.full((N, 1), T0)
     C = np.full((N, 1), T0)
     # Preenchimento da matriz de coeficientes:
@@ -101,11 +101,12 @@ def solveimplicitly(r):
 
 
 solveimplicitly(r1)
-#plotfxy(X, T[nsteps-1])
+plotfxy(X, T[nsteps-1])
 
 # explictsolver(T, 0.5, N, tf)
 # fillbounds(T, f, N)
 # print(T)
+
 
 x_ax = X 
 y_ax = T[0, :]
@@ -131,6 +132,6 @@ def animate(i):
     line.set_data(x, y)
     return line, time_text
 
-anim = ani.FuncAnimation(fig, animate, init_func=init, frames=100, interval=1, blit=True)
-anim.save('temperatura.gif')
-plt.show()
+#anim = ani.FuncAnimation(fig, animate, init_func=init, frames=100, #interval=1, blit=True)
+#anim.save('temperatura.gif')
+#plt.show()
