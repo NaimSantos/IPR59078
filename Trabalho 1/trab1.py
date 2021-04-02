@@ -10,7 +10,7 @@ ti = 0.0                  # tempo inicial da simulação
 tf = 500.0                # tempo final da simulação
 dx = L / (N - 1)          # comprimento do intervalo
 dt = 0.1                  # passo de tempo
-nsteps = int((tf - ti) / dt)   # número de passos de tempo
+nsteps = int((tf-ti)/dt)  # número de passos de tempo
 
 # Dados do problema:
 kappa = 0.6
@@ -21,8 +21,8 @@ g = 100000
 T0 = 20.0
 TL = 20.0
 alpha = kappa/(rho*cp)
-r1 = (alpha*dt)/(dx*dx)
-r2 = (alpha*dt) / (2*dx*dx)
+r1 = (alpha*dt)/(dx*dx)         # coeficiente r do método implícito
+r2 = (alpha*dt) / (2*dx*dx)     # coeficiente r do Crank-Nicolson
 gamma = 3.0 + ((2*h*dx)/kappa)
 llambda = (g*dt)/(rho*cp)
 
@@ -31,18 +31,18 @@ def f(x):
         return (x)
     else:
         return (1 - x)
-        
+
 def fillbounds(T, f, N):
     j = 0
     while j < N:
         T[0][j]  = f(j*dx)
         j += 1
-        
+
 def plotfxy(eixo_x, eixo_y):
-    plt.plot(eixo_x, eixo_y, "r") # red diamonds
+    plt.plot(eixo_x, eixo_y, "r")
     plt.title("Perfil de temperatura da placa unidimensional")
-    plt.xlabel("Comprimento", fontsize = 13)
-    plt.ylabel("Temperatura", fontsize = 13)
+    plt.xlabel("Comprimento", fontsize = 12)
+    plt.ylabel("Temperatura", fontsize = 12)
     plt.show()
 
 # Solver explícito para a temperatura:
@@ -55,35 +55,25 @@ def explictsolver(Arr, cfl, N, tf):
             j += 1
         i += 1
 
-T = np.zeros((nsteps, N)) #Array para temperaturas, com N elementos por linha em nsteps linhas
-# Tcopy = np.zeros((nsteps, N)) #copia para o Cranck Nicolson
-X = np.linspace(0.0, L, N) # Vetor das posições linearmente espaçado
-
-# print("A: ", A)
-# print("B: ",  B)
-#S = np.linalg.solve(A, B)
-#teste = np.allclose(np.dot(A, S), B)
-
+T = np.zeros((nsteps, N))   # Array para temperaturas, com N elementos por linha em nsteps linhas
+T2 = np.zeros((nsteps, N))  # copia para o Cranck Nicolson
+X = np.linspace(0.0, L, N)  # Vetor das posições linearmente espaçado
 
 # Solver implícito:
 def implictsolver(A, B, C):
     T[0] = B.reshape(1, N)
     t = 1
     while t < nsteps :
-        
         B[0][0] = 0.0
         B[N-1][0] = (2*h*dx*T0)/kappa
         i = 1
         while i < N-1 :
             B[i][0] = C[i][0] + llambda
             i = i + 1
-        #print("B: ", B)
         C = np.linalg.solve(A, B)
-        #print("C: ", C)        
         T[t] = C.reshape(1, N)
-        #print("T: ",  T[t])
         t = t + 1
-#print(T)
+
 def solveimplicitly(r):
     # preenchimento da matriz de termos independentes:
     B = np.full((N, 1), T0)
@@ -141,10 +131,6 @@ def animate(i):
     line.set_data(x, y)
     return line, time_text
 
-
 anim = ani.FuncAnimation(fig, animate, init_func=init, frames=100, interval=1, blit=True)
 anim.save('temperatura.gif')
 plt.show()
-
-
-#
