@@ -4,14 +4,13 @@ import matplotlib.animation as ani
 
 
 # Variáveis do domínio da simulação:
-r = 0.5             # condição CFL
-dx = 0.05            # intervalo em x
-dt = 1               # passo de tempo
-L = 1.0              # comprimento total da placa
-ti = 0.0             # tempo inicial da simulação
-tf = int(100.0)      #tempo final da simulação
-N  = int(L/dx + 1)   # número de nós da malha (intervalos + 1)
-I = (tf - ti) / dt   # número de passos de tempo
+L = 0.03                  # comprimento total da placa
+N  = 25                   # número de nós da malha (intervalos + 1)
+ti = 0.0                  # tempo inicial da simulação
+tf = 500.0                # tempo final da simulação
+dx = L / (N - 1)          # comprimento do intervalo
+dt = 0.1                  # passo de tempo
+nsteps = int((tf - ti) / dt)   # número de passos de tempo
 
 # Dados do problema:
 kappa = 0.6
@@ -19,22 +18,26 @@ rho = 600
 cp = 1200
 h = 15.0
 g = 100000
-T_zero = 20.0
-
+T0 = 20.0
+TL = 20.0
+alpha = kappa/(rho*cp)
+r1 = (alpha*dt)/(dx*dx)
+r2 = (alpha*dt) / (2*dx*dx)
+gamma = 3.0 + ((2*h*dx)/kappa)
+llambda = (g*dt)/(rho*cp)
 
 def f(x):
     if x <= 0.5:
         return (x)
     else:
         return (1 - x)
-
-
+        
 def fillbounds(T, f, N):
     j = 0
     while j < N:
         T[0][j]  = f(j*dx)
         j += 1
-
+        
 def plotfxy(eixo_x, eixo_y):
     plt.plot(eixo_x, eixo_y, "r") # red diamonds
     plt.title("Perfil de temperatura da placa unidimensional")
@@ -42,8 +45,7 @@ def plotfxy(eixo_x, eixo_y):
     plt.ylabel("Temperatura", fontsize = 13)
     plt.show()
 
-
-# Solver explicito para a temperatura:
+# Solver explícito para a temperatura:
 def explictsolver(Arr, cfl, N, tf):
     i = 1 # i = tempo = linhas
     while i < tf :
@@ -53,25 +55,79 @@ def explictsolver(Arr, cfl, N, tf):
             j += 1
         i += 1
 
-T = np.zeros((tf, N)) #Array para temperaturas, N elementos, 100 tempos
-X = np.linspace(0.0, L, N)
-ts = np.arange(0, 100, 1)
+T = np.zeros((nsteps, N)) #Array para temperaturas, com N elementos por linha em nsteps linhas
+# Tcopy = np.zeros((nsteps, N)) #copia para o Cranck Nicolson
+X = np.linspace(0.0, L, N) # Vetor das posições linearmente espaçado
+
+# print("A: ", A)
+# print("B: ",  B)
+#S = np.linalg.solve(A, B)
+#teste = np.allclose(np.dot(A, S), B)
 
 
-explictsolver(T, 0.5, N, tf)
+# Solver implícito:
+def implictsolver(A, B, C):
+    T[0] = B.reshape(1, N)
+    t = 1
+    while t < nsteps :
+        
+        B[0][0] = 0.0
+        B[N-1][0] = (2*h*dx*T0)/kappa
+        i = 1
+        while i < N-1 :
+            B[i][0] = C[i][0] + llambda
+            i = i + 1
+        #print("B: ", B)
+        C = np.linalg.solve(A, B)
+        #print("C: ", C)        
+        T[t] = C.reshape(1, N)
+        #print("T: ",  T[t])
+        t = t + 1
+#print(T)
+def solveimplicitly(r):
+    # preenchimento da matriz de termos independentes:
+    B = np.full((N, 1), T0)
+    C = np.full((N, 1), T0)
+    # Preenchimento da matriz de coeficientes:
+    A = np.zeros((N,N))
+    A[0][0] = -3.0
+    A[0][1] = 4.0
+    A[0][2] = -1.0
+    A[N-1][N-3] = 1.0
+    A[N-1][N-2] = -4.0
+    A[N-1][N-1] = gamma
+    i = 1 # linha
+    j = 0 # coluna
+    while i < N-1 :
+        A[i][j] = - r
+        A[i][j+1] = 1 + 2*r
+        A[i][j+2] = -r
+        j = j+1
+        i = i+1
+    #print("A: ", A)
+    #print("B antes: ", B)
+    implictsolver(A, B, C)
+
+
+
+solveimplicitly(r1)
+#plotfxy(X, T[nsteps-1])
+
+# explictsolver(T, 0.5, N, tf)
 # fillbounds(T, f, N)
 # print(T)
 
 x_ax = X 
 y_ax = T[0, :]
+ts = np.arange(0, nsteps, 1)
 
 fig = plt.figure()
 plt.title("Perfil de temperatura da placa unidimensional")
 plt.xlabel("Comprimento", fontsize = 11)
 plt.ylabel("Temperatura", fontsize = 11)
-ax = plt.axes(xlim = (0, 1.0), ylim=(0, 0.5))
+ax = plt.axes(xlim = (0, 0.03), ylim=(20, 100))
 line, = ax.plot([], [], lw=2)
-time_text = ax.text(0.02, 0.95, '', transform=ax.transAxes)
+time_text = ax.text(0.01,01.0, '', transform=ax.transAxes)
 
 def init():
     line.set_data([], [])
@@ -91,4 +147,4 @@ anim.save('temperatura.gif')
 plt.show()
 
 
-res = np.linalg.solve()
+#
