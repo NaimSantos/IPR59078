@@ -9,7 +9,7 @@ N  = 25                   # número de nós da malha
 ti = 0.0                  # tempo inicial da simulação
 tf = 500.0                # tempo final da simulação
 dx = L / (N - 1)          # comprimento do intervalo
-dt = 0.1                  # passo de tempo
+dt = 0.5                  # passo de tempo
 nsteps = int((tf-ti)/dt)  # número de passos de tempo
 
 # Dados do problema:
@@ -26,17 +26,20 @@ r2 = (alpha*dt)/(2*dx*dx)       # coeficiente r do Crank-Nicolson
 gamma = 3.0 + ((2*h*dx)/kappa)
 llambda = (g*dt)/(rho*cp)
 
+
 def plotfxy(eixo_x, eixo_y):
-    plt.plot(eixo_x, eixo_y, "r")
+    plt.plot(eixo_x, eixo_y, "r", label= 't = 500 s')
     plt.title("Perfil de temperatura da placa unidimensional")
     plt.xlabel("Comprimento", fontsize = 12)
     plt.ylabel("Temperatura", fontsize = 12)
+    plt.legend(loc='upper center', fontsize=9)
+    plt.grid(True, 'major', 'both')
     plt.savefig('Grafico1.png')
-    plt.show()
+    #plt.show()
 
 
 T = np.zeros((nsteps, N))   # Array para temperaturas, com N elementos por linha em nsteps linhas
-T2 = np.zeros((nsteps, N))  # copia para o Cranck Nicolson
+T2 = np.zeros((nsteps, N))  # Copia para o Cranck Nicolson
 X = np.linspace(0.0, L, N)  # Vetor das posições linearmente espaçado
 
 # Solver implícito:
@@ -57,7 +60,6 @@ def implictsolver(A, B):
 def solveimplicitly(r):
     # Preenchimento da matriz de termos independentes:
     B = np.full((N, 1), T0)
-    C = np.full((N, 1), T0)
 
     # Preenchimento da matriz de coeficientes:
     A = np.zeros((N,N))
@@ -67,8 +69,8 @@ def solveimplicitly(r):
     A[N-1][N-3] = 1.0
     A[N-1][N-2] = -4.0
     A[N-1][N-1] = gamma
-    i = 1 # linha
-    j = 0 # coluna
+    i = 1
+    j = 0
     while i < N-1 :
         A[i][j] = - r
         A[i][j+1] = 1 + 2*r
@@ -81,35 +83,37 @@ def solveimplicitly(r):
 
 
 
-
 solveimplicitly(r1)
 
 
 # Animação :
-# x_ax = X
-# y_ax = T[0, :]
-# ts = np.arange(0, nsteps, 1)
+x_ax = X
+y_ax = T[0, :]
+ts = np.linspace(0, tf, nsteps)
 
-# fig = plt.figure()
-# plt.title("Perfil de temperatura da placa unidimensional")
-# plt.xlabel("Comprimento", fontsize = 11)
-# plt.ylabel("Temperatura", fontsize = 11)
-# ax = plt.axes(xlim = (0, 0.03), ylim=(20, 100))
-# line, = ax.plot([], [], lw=2)
-# time_text = ax.text(0.01,01.0, '', transform=ax.transAxes)
+fig = plt.figure()
+plt.title("Perfil de temperatura da placa unidimensional")
+plt.xlabel("Comprimento", fontsize = 11)
+plt.ylabel("Temperatura", fontsize = 11)
+ax = plt.axes(xlim = (np.min(x_ax), np.max(x_ax)), ylim=(0, 21))
+line, = ax.plot([], [], lw=2)
+time_text = ax.text(0.1, 1.0, '', transform=ax.transAxes)
 
-# def init():
-    # line.set_data([], [])
-    # time_text.set_text('')
-    # return line, time_text
+def init():
+    line.set_data([], [])
+    time_text.set_text('')
+    return line, time_text
 
-# def animate(i):
-    # x = X
-    # y = T[i, :]
-    # time_text.set_text('t = % .01f s' % ts[i])
-    # line.set_data(x, y)
-    # return line, time_text
+def animate(i):
+    x = X
+    y = T[i, :]
+    ymin=np.min(y)
+    ymax=np.max(y)
+    time_text.set_text('t = % .01f s' % ts[i])
+    ax.set_ylim(ymin, ymax)
+    line.set_data(x, y)
+    return line, time_text
 
-#anim = ani.FuncAnimation(fig, animate, init_func=init, frames=100, #interval=1, blit=True)
-#anim.save('temperatura.gif')
-#plt.show()
+anim = ani.FuncAnimation(fig, animate, init_func=init, frames=nsteps,interval=1, blit=False)
+anim.save('temperatura.gif')
+plt.show()
