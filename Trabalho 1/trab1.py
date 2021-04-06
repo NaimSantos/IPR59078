@@ -20,9 +20,8 @@ h = 15.0
 g = 100000
 T0 = 20.0
 TL = 20.0
-alpha = kappa/(rho*cp)
-r1 = (alpha*dt)/(dx*dx)         # coeficiente r do método implícito
-r2 = (alpha*dt)/(2*dx*dx)       # coeficiente r do Crank-Nicolson
+r1 = (kappa*dt)/(rho*cp*dx*dx)         # coeficiente r do método implícito
+r2 = (kappa*dt)/(rho*cp*2*dx*dx)       # coeficiente r do Crank-Nicolson
 eta = 3.0 + ((2*h*dx)/kappa)
 mu = (g*dt)/(rho*cp)
 
@@ -50,15 +49,12 @@ def animate(i):
     line.set_data(x, y)
     return line, time_text
 
-
-
-# Animaç
-
+# Matrizes para armazenamento dos resultados
 T = np.zeros((nsteps, N))   # Array para temperaturas, com N elementos por linha em nsteps linhas
 T2 = np.zeros((nsteps, N))  # Copia para o Cranck Nicolson
 X = np.linspace(0.0, L, N)  # Vetor das posições linearmente espaçado
 
-# Solver implícito:
+# Método totalmente implícito:
 def implictsolver(A, B, T):
     T[0] = B.reshape(1, N)
     t = 1
@@ -72,11 +68,9 @@ def implictsolver(A, B, T):
         B = np.linalg.solve(A, B)
         T[t] = B.reshape(1, N)
         t = t + 1
-
-def solveimplicitly(r):
+def solveimplicitly(r, T):
     # Preenchimento da matriz de termos independentes:
     B = np.full((N, 1), T0)
-
     # Preenchimento da matriz de coeficientes:
     A = np.zeros((N,N))
     A[0][0] = -3.0
@@ -96,7 +90,6 @@ def solveimplicitly(r):
     implictsolver(A, B, T)
     plotfxy(X, T[nsteps-1])
 
-
 # Crank-Nicolson:
 def nicolsonsolver(A, B, T, r):
     T[0] = B.reshape(1, N)
@@ -113,11 +106,9 @@ def nicolsonsolver(A, B, T, r):
         B = np.linalg.solve(A, B)
         T[t] = B.reshape(1, N)
         t = t + 1
-
 def solvebyNicolson(r, T):
     # Preenchimento da matriz de termos independentes:
     B = np.full((N, 1), T0)
-
     # Preenchimento da matriz de coeficientes:
     A = np.zeros((N,N))
     A[0][0] = -3.0
@@ -136,7 +127,6 @@ def solvebyNicolson(r, T):
         i = i+1
     nicolsonsolver(A, B, T, r)
     plotfxy(X, T[nsteps-1])
- 
 
 
 # solveimplicitly(r1, T)
