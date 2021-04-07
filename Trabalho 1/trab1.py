@@ -5,11 +5,11 @@ import matplotlib.animation as ani
 
 # Variáveis do domínio da simulação:
 L = 0.03                  # comprimento total da placa
-N  = 15                   # número de nós da malha
+N  = 100                   # número de nós da malha
 ti = 0.0                  # tempo inicial da simulação
 tf = 500.0                # tempo final da simulação
 dx = L/(N-1)              # comprimento do intervalo
-dt = 0.5                  # passo de tempo
+dt = 0.01                  # passo de tempo
 nsteps = int((tf-ti)/dt)  # número de passos de tempo
 
 # Dados do problema:
@@ -25,12 +25,14 @@ r2 = (kappa*dt)/(rho*cp*2*dx*dx)       # coeficiente r do Crank-Nicolson
 eta = 3.0 + ((2*h*dx)/kappa)
 mu = (g*dt)/(rho*cp)
 
-
-def plotfxy(eixo_x, eixo_y):
-    plt.plot(eixo_x, eixo_y, "r", label= 't = 500 s')
-    plt.title("Perfil de temperatura da placa unidimensional")
-    plt.xlabel("Comprimento (m)", fontsize = 12)
-    plt.ylabel("Temperatura (° C)", fontsize = 12)
+print("r implicito: ", r1)
+print("r Nicolson: ", r2)
+def plotfxy(eixo_x, y1, y2):
+    plt.plot(eixo_x, y1, 'r', label= 'Implícito')
+    plt.plot(eixo_x, y2, 'blue', label= 'Crank-Nicolson')
+    plt.title("Perfil de temperatura da placa unidimensional (t=500 s)")
+    plt.xlabel("Comprimento (m)", fontsize = 11)
+    plt.ylabel("Temperatura (° C)", fontsize = 11)
     plt.legend(loc='upper center', fontsize=9)
     plt.grid(True, 'major', 'both')
     plt.savefig('Grafico1.png')
@@ -50,7 +52,7 @@ def animate(i):
     return line, time_text
 
 # Matrizes para armazenamento dos resultados
-T = np.zeros((nsteps, N))   # Array para temperaturas, com N elementos por linha em nsteps linhas
+T1 = np.zeros((nsteps, N))   # Array para temperaturas, com N elementos por linha em nsteps linhas
 T2 = np.zeros((nsteps, N))  # Copia para o Cranck Nicolson
 X = np.linspace(0.0, L, N)  # Vetor das posições linearmente espaçado
 
@@ -88,7 +90,6 @@ def solveimplicitly(r, T):
         j = j+1
         i = i+1
     implictsolver(A, B, T)
-    plotfxy(X, T[nsteps-1])
 
 # Crank-Nicolson:
 def nicolsonsolver(A, B, T, r):
@@ -126,16 +127,18 @@ def solvebyNicolson(r, T):
         j = j+1
         i = i+1
     nicolsonsolver(A, B, T, r)
-    plotfxy(X, T[nsteps-1])
 
 
-# solveimplicitly(r1, T)
-# print("T[x=0] =", T1[nsteps-1][0])
-# print("T[x=0.03] =", T1[nsteps-1][N-1])
+
+solveimplicitly(r1, T1)
+print("T[x=0] =", T1[nsteps-1][0])
+print("T[x=0.03] =", T1[nsteps-1][N-1])
 
 solvebyNicolson(r2, T2)
 print("T[x=0] =", T2[nsteps-1][0])
 print("T[x=0.03] =", T2[nsteps-1][N-1])
+
+plotfxy(X, T1[nsteps-1], T2[nsteps-1])
 
 # Animação :
 # x_ax = X
