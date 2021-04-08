@@ -13,7 +13,7 @@ void implicit_fic(vector<vector<double>>& A, vector<double>& B, const double r);
 void nicolson_diff(vector<vector<double>>& A, vector<double>& B, const double r);
 void nicolson_fic(vector<vector<double>>& A, vector<double>& B, const double r);
 void resumesaving(std::fstream& printer, const vector<double>& B, const int iter);
-void linspacefill(vector<double>& Vec, const int Num, const double xi = 0.0, const double xf = 1.0);
+void linspace(vector<double>& Vec, const int Num, const double xi = 0.0, const double xf = 1.0);
 void printvec(const vector<double>& Vec);
 void printmatriz(const vector<vector<double>>& A);
 
@@ -61,7 +61,7 @@ int main (int argc, char* argv[]){
 
 	// Salvar em um arquivo a comparação entre todos os métodos:
 	vector<double> X(N, 0.0);
-	linspacefill(X, N, 0.0, L);
+	linspace(X, N, 0.0, L);
 	std::fstream allprint {"Temperaturas via 4 Metodos.dat", std::ios::app};
 	allprint << "t = " << tf << ", dx = " << dx << '\n';
 	allprint << "X IMP_DIF CN_DIF IMP_FIC CN_FIC\n";
@@ -261,8 +261,8 @@ void printmatriz(const vector<vector<double>>& A){
 	}
 }
 
-void linspacefill(vector<double>& Vec, const int Num, const double xi, const double xf){
-	auto h = (xf - xi) / Num;
+void linspace(vector<double>& Vec, const int Num, const double xi, const double xf){
+	auto h = (xf - xi) / (Num-1);
 	auto n = Vec.size();
 	for (int i = 0; i < n; i++){
 		Vec[i] = xi + i*h;
