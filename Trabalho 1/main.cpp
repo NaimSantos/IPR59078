@@ -52,8 +52,7 @@ int main (int argc, char* argv[]){
 	vector<double> B4 (N, T0);
 	std::cout << "Solucao da Equacao Difusivo-Advectiva" << std::endl;
 	std::cout << "tf = " << tf << " s, nsteps = " << nsteps << ", dt = " << dt << ", N = " <<  N << ", dx = " << dx << std::endl;
-	
-	
+
 	implicit_diff(A1, B1, r1);
 	nicolson_diff(A2, B2, r2);
 	implicit_fic(A3, B3, r1);
@@ -72,7 +71,7 @@ void implicit_diff(vector<vector<double>>& A, vector<double>& B, const double r)
 			printer << x << ' ';
 	printer << T0 << '\n';
 
-	//Preenchemos a matriz A (B já foi preenchido):
+	// Preenchemos a matriz A (B já foi preenchido):
 	A[0][0] = -3.0;
 	A[0][1] = 4.0;
 	A[0][2] = -1.0;
@@ -86,9 +85,8 @@ void implicit_diff(vector<vector<double>>& A, vector<double>& B, const double r)
 	A[N-1][N-3] = 1.0;
 	A[N-1][N-2] = -4.0;
 	A[N-1][N-1] = gamma;
-	printmatriz(A);
-	//printmatriz(A);
-	//Os passos iterativos do método:
+
+	// Os passos iterativos do método:
 	for (step = 1; step < nsteps; step++){
 		// Corrige B:
 		B[0] = 0.0;
@@ -96,9 +94,8 @@ void implicit_diff(vector<vector<double>>& A, vector<double>& B, const double r)
 			B[i] = B[i] + lambda;
 		}
 		B[N-1] = (2*h*dx*T0)/kappa;
-		//Resolve o sistema:
+		// Resolve o sistema:
 		GS_Solver(A, B);
-		//resumesaving(printer, B, step);
 	}
 	resumesaving(printer, B, step);
 	std::cout << "\nEsquema implicito, com contorno de diferencas finitas e  r = " << r << ": " << std::endl;
@@ -116,7 +113,7 @@ void implicit_fic(vector<vector<double>>& A, vector<double>& B, const double r){
 			printer << x << ' ';
 	printer << T0 << '\n';
 
-	//Preenchemos a matriz A (B já foi preenchido):
+	// Preenchemos a matriz A (B já foi preenchido):
 	A[0][0] = 1 + 2*r;
 	A[0][1] = -2*r;
 	int k = 0;
@@ -129,17 +126,15 @@ void implicit_fic(vector<vector<double>>& A, vector<double>& B, const double r){
 	A[N-1][N-2] = -2*r;
 	A[N-1][N-1] = 1 + 2*r + (2*r*dx*h)/kappa;
 
-	//printmatriz(A);
-	//Os passos iterativos do método:
+	// Os passos iterativos do método:
 	for (step = 1; step < nsteps; step++){
 		// Corrige B:
 		for (int i = 0; i < N-1; i++){
 			B[i] = B[i] + lambda;
 		}
 		B[N-1] = B[N-1] + lambda + (2*r*h*dx*T0)/kappa;
-		//Resolve o sistema:
+		// Resolve o sistema:
 		GS_Solver(A, B);
-		//resumesaving(printer, B, step);
 	}
 	resumesaving(printer, B, step);
 	std::cout << "\nEsquema implicito, com contorno via nos ficticios e  r = " << r << ": " << std::endl;
@@ -157,7 +152,7 @@ void nicolson_diff(vector<vector<double>>& A, vector<double>& B, const double r)
 			printer << x << ' ';
 	printer << T0 << '\n';
 
-	//Preenchemos a matriz A (B já foi preenchido):
+	// Preenchemos a matriz A (B já foi preenchido):
 	A[0][0] = -3.0;
 	A[0][1] = 4.0;
 	A[0][2] = -1.0;
@@ -172,8 +167,7 @@ void nicolson_diff(vector<vector<double>>& A, vector<double>& B, const double r)
 	A[N-1][N-2] = -4.0;
 	A[N-1][N-1] = gamma;
 
-	//printmatriz(A);
-	//Os passos iterativos do método:
+	// Os passos iterativos do método:
 	for (step = 1; step < nsteps; step++){
 		// Corrige os termos internos de B:
 		for (int i = 1; i < N-1; i++){
@@ -182,9 +176,8 @@ void nicolson_diff(vector<vector<double>>& A, vector<double>& B, const double r)
 		// Cprrige os termos no contorno de B:
 		B[0] = 0.0;
 		B[N-1] = (2*h*dx*T0)/kappa;
-		//Resolve o sistema:
+		// Resolve o sistema:
 		GS_Solver(A, B);
-		//resumesaving(printer, B, step);
 	}
 	resumesaving(printer, B, step);
 	std::cout << "\nCrank-Nicolson com contorno de diferencas finitas e r = " << r << ": " << std::endl;
@@ -202,7 +195,7 @@ void nicolson_fic(vector<vector<double>>& A, vector<double>& B, const double r){
 			printer << x << ' ';
 	printer << T0 << '\n';
 
-	//Preenchemos a matriz A (B já foi preenchido):
+	// Preenchemos a matriz A (B já foi preenchido):
 	A[0][0] = 1 + 2*r;
 	A[0][1] = -2*r;
 	int k = 0;
@@ -215,19 +208,17 @@ void nicolson_fic(vector<vector<double>>& A, vector<double>& B, const double r){
 	A[N-1][N-2] = -2*r;
 	A[N-1][N-1] = 1 + 2*r + (2*r*dx*h)/kappa;
 
-	//printmatriz(A);
-	//Os passos iterativos do método:
+	// Os passos iterativos do método:
 	for (step = 1; step < nsteps; step++){
 		// Corrige os termos internos de B:
 		for (int i = 1; i < N-1; i++){
 			B[i] = r*B[i-1] + (1-2*r)*B[i] + r*B[i+1] + lambda;
 		}
-		// Cprrige os termos no contorno de B:
+		// Corrige os termos no contorno de B:
 		B[0] = (1 - 2*r)*B[0] + (2*r)*B[1] + lambda;
 		B[N-1] = (2*r)*B[N-2] + (1 - 2*r - 2*r*dx*h/kappa)*B[N-1] + (4*r*h*dx*T0)/kappa + lambda;
-		//Resolve o sistema:
+		// Resolve o sistema:
 		GS_Solver(A, B);
-		//resumesaving(printer, B, step);
 	}
 	resumesaving(printer, B, step);
 	std::cout << "\nCrank-Nicolson com contorno via nos ficticios e r = " << r << ": " << std::endl;
