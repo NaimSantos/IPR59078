@@ -1,0 +1,4 @@
+Perfil de Temperatura via solver implicito, contorno via diferencas finitas.
+i t x T
+0 0 0 0.003 0.006 0.009 0.012 0.015 0.018 0.021 0.024 0.027 0.03 20
+5000 500 84.9939 84.8653 84.4794 83.8253 82.885 81.633 80.0369 78.0577 75.6493 72.7595 69.3297 

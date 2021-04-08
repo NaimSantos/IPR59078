@@ -18,11 +18,11 @@ void printvec(const vector<double>& Vec);
 void printmatriz(const vector<vector<double>>& A);
 
 // Variáveis do domínio da simulação:
-constexpr double L {0.03};                            // comprimento total da placa
-constexpr int N {10};                                 // número de nós da malha
-constexpr double ti {0.0};                            // tempo inicial da simulação
-constexpr double tf {500.0};                          // tempo final da simulação
-constexpr double dt {0.1};                            // passo de tempo
+constexpr double L {0.03};                             // comprimento total da placa
+constexpr int N {11};                                  // número de nós da malha
+constexpr double ti {0.0};                             // tempo inicial da simulação
+constexpr double tf {500.0};                           // tempo final da simulação
+constexpr double dt {0.1};                             // passo de tempo
 constexpr auto dx { L / (N - 1)};                      // comprimento do intervalo
 constexpr auto nsteps = static_cast<int>((tf-ti)/dt);  // número de passos de tempo
 
@@ -52,12 +52,22 @@ int main (int argc, char* argv[]){
 	vector<vector<double>> A4 (N, std::vector<double>(N, 0.0));
 	vector<double> B4 (N, T0);
 	std::cout << "Solucao da Equacao Difusivo-Advectiva" << std::endl;
-	std::cout << "tf = " << tf << " s, nsteps = " << nsteps << ", dt = " << dt << ", N = " <<  N << ", dx = " << dx << std::endl;
+	std::cout << "tf = " << tf << " s, nsteps = " << nsteps << ", dt = " << dt << ", N = " << N << ", dx = " << dx << std::endl;
 
 	implicit_diff(A1, B1, r1);
 	nicolson_diff(A2, B2, r2);
 	implicit_fic(A3, B3, r1);
 	nicolson_fic(A4, B4, r2);
+
+	// Salvar em um arquivo a comparação entre todos os métodos:
+	vector<double> X(N, 0.0);
+	linspacefill(X, N, 0.0, L);
+	std::fstream allprint {"Temperaturas via 4 Metodos.dat", std::ios::app};
+	allprint << "t = " << tf << ", dx = " << dx << '\n';
+	allprint << "X IMP_DIF CN_DIF IMP_FIC CN_FIC\n";
+	for (int i = 0; i < N; i++){
+		allprint << X[i] << ' ' << B1[i] << ' ' << B2[i] << ' ' << B3[i] << ' ' << B4[i] << '\n';
+	}
 }
 
 void implicit_diff(vector<vector<double>>& A, vector<double>& B, const double r){
@@ -78,10 +88,10 @@ void implicit_diff(vector<vector<double>>& A, vector<double>& B, const double r)
 	A[0][2] = -1.0;
 	int k = 0;
 	for (int i = 1; i < N-1; i++){
-			A[i][k] = - r;
-			A[i][k+1] = 1 + 2*r;
-			A[i][k+2] = -r;
-			k++;
+		A[i][k] = - r;
+		A[i][k+1] = 1 + 2*r;
+		A[i][k+2] = -r;
+		k++;
 	}
 	A[N-1][N-3] = 1.0;
 	A[N-1][N-2] = -4.0;
@@ -99,7 +109,7 @@ void implicit_diff(vector<vector<double>>& A, vector<double>& B, const double r)
 		GS_Solver(A, B);
 	}
 	resumesaving(printer, B, step);
-	std::cout << "\nEsquema implicito, com contorno de diferencas finitas e  r = " << r << ": " << std::endl;
+	std::cout << "\nEsquema implicito, com contorno de diferencas finitas e r = " << r << ": " << std::endl;
 	printvec(B);
 }
 
@@ -120,11 +130,11 @@ void implicit_fic(vector<vector<double>>& A, vector<double>& B, const double r){
 	A[0][1] = -2*r;
 	int k = 0;
 	for (int i = 1; i < N-1; i++){
-			A[i][k] = - r;
-			A[i][k+1] = 1 + 2*r;
-			A[i][k+2] = -r;
-			k++;
-		}
+		A[i][k] = - r;
+		A[i][k+1] = 1 + 2*r;
+		A[i][k+2] = -r;
+		k++;
+	}
 	A[N-1][N-2] = -2*r;
 	A[N-1][N-1] = 1 + 2*r + (2*r*dx*h)/kappa;
 
@@ -139,7 +149,7 @@ void implicit_fic(vector<vector<double>>& A, vector<double>& B, const double r){
 		GS_Solver(A, B);
 	}
 	resumesaving(printer, B, step);
-	std::cout << "\nEsquema implicito, com contorno via nos ficticios e  r = " << r << ": " << std::endl;
+	std::cout << "\nEsquema implicito, com contorno via nos ficticios e r = " << r << ": " << std::endl;
 	printvec(B);
 }
 
@@ -161,10 +171,10 @@ void nicolson_diff(vector<vector<double>>& A, vector<double>& B, const double r)
 	A[0][2] = -1.0;
 	int k = 0;
 	for (int i = 1; i < N-1; i++){
-			A[i][k] = - r;
-			A[i][k+1] = 1 + 2*r;
-			A[i][k+2] = -r;
-			k++;
+		A[i][k] = - r;
+		A[i][k+1] = 1 + 2*r;
+		A[i][k+2] = -r;
+		k++;
 	}
 	A[N-1][N-3] = 1.0;
 	A[N-1][N-2] = -4.0;
@@ -176,7 +186,7 @@ void nicolson_diff(vector<vector<double>>& A, vector<double>& B, const double r)
 		for (int i = 1; i < N-1; i++){
 			B[i] = r*B[i-1] + (1-2*r)*B[i] + r*B[i+1] + lambda;
 		}
-		// Cprrige os termos no contorno:
+		// Corrige os termos no contorno:
 		B[0] = 0.0;
 		B[N-1] = (2*h*dx*T0)/kappa;
 		// Resolve o sistema:
@@ -204,10 +214,10 @@ void nicolson_fic(vector<vector<double>>& A, vector<double>& B, const double r){
 	A[0][1] = -2*r;
 	int k = 0;
 	for (int i = 1; i < N-1; i++){
-			A[i][k] = - r;
-			A[i][k+1] = 1 + 2*r;
-			A[i][k+2] = -r;
-			k++;
+		A[i][k] = - r;
+		A[i][k+1] = 1 + 2*r;
+		A[i][k+2] = -r;
+		k++;
 	}
 	A[N-1][N-2] = -2*r;
 	A[N-1][N-1] = 1 + 2*r + (2*r*dx*h)/kappa;
