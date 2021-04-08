@@ -62,7 +62,7 @@ int main (int argc, char* argv[]){
 	// Salvar em um arquivo a comparação entre todos os métodos:
 	vector<double> X(N, 0.0);
 	linspace(X, N, 0.0, L);
-	std::fstream allprint {"Temperaturas via 4 Metodos.dat", std::ios::app};
+	std::fstream allprint {"dados.dat", std::ios::app};
 	allprint << "t = " << tf << ", dx = " << dx << '\n';
 	allprint << "X IMP_DIF CN_DIF IMP_FIC CN_FIC\n";
 	for (int i = 0; i < N; i++){
