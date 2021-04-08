@@ -13,6 +13,7 @@ void implicit_fic(vector<vector<double>>& A, vector<double>& B, const double r);
 void nicolson_diff(vector<vector<double>>& A, vector<double>& B, const double r);
 void nicolson_fic(vector<vector<double>>& A, vector<double>& B, const double r);
 void resumesaving(std::fstream& printer, const vector<double>& B, const int iter);
+void linspacefill(vector<double>& Vec, const int Num, const double xi = 0.0, const double xf = 1.0);
 void printvec(const vector<double>& Vec);
 void printmatriz(const vector<vector<double>>& A);
 
@@ -67,11 +68,11 @@ void implicit_diff(vector<vector<double>>& A, vector<double>& B, const double r)
 
 	int step = 0;
 	printer << step << ' ' << ti << ' ';
-		for (double x = 0.0; x <= L; x = x+dx)
-			printer << x << ' ';
+	for (double x = 0.0; x <= L; x = x+dx)
+		printer << x << ' ';
 	printer << T0 << '\n';
 
-	// Preenchemos a matriz A (B já foi preenchido):
+	// Preenchemos a matriz A (B já foi preenchido com os valores de T0):
 	A[0][0] = -3.0;
 	A[0][1] = 4.0;
 	A[0][2] = -1.0;
@@ -81,7 +82,7 @@ void implicit_diff(vector<vector<double>>& A, vector<double>& B, const double r)
 			A[i][k+1] = 1 + 2*r;
 			A[i][k+2] = -r;
 			k++;
-		}
+	}
 	A[N-1][N-3] = 1.0;
 	A[N-1][N-2] = -4.0;
 	A[N-1][N-1] = gamma;
@@ -101,6 +102,7 @@ void implicit_diff(vector<vector<double>>& A, vector<double>& B, const double r)
 	std::cout << "\nEsquema implicito, com contorno de diferencas finitas e  r = " << r << ": " << std::endl;
 	printvec(B);
 }
+
 void implicit_fic(vector<vector<double>>& A, vector<double>& B, const double r){
 
 	std::fstream printer {"Temperatura_Implicit_Fic.dat", std::ios::app};
@@ -109,11 +111,11 @@ void implicit_fic(vector<vector<double>>& A, vector<double>& B, const double r){
 
 	int step = 0;
 	printer << step << ' ' << ti << ' ';
-		for (double x = 0.0; x <= L; x = x+dx)
-			printer << x << ' ';
+	for (double x = 0.0; x <= L; x = x+dx)
+		printer << x << ' ';
 	printer << T0 << '\n';
 
-	// Preenchemos a matriz A (B já foi preenchido):
+	// Preenchemos a matriz A:
 	A[0][0] = 1 + 2*r;
 	A[0][1] = -2*r;
 	int k = 0;
@@ -140,6 +142,7 @@ void implicit_fic(vector<vector<double>>& A, vector<double>& B, const double r){
 	std::cout << "\nEsquema implicito, com contorno via nos ficticios e  r = " << r << ": " << std::endl;
 	printvec(B);
 }
+
 void nicolson_diff(vector<vector<double>>& A, vector<double>& B, const double r){
 
 	std::fstream printer {"Temperatura_Nicolson_Diff.dat", std::ios::app};
@@ -148,8 +151,8 @@ void nicolson_diff(vector<vector<double>>& A, vector<double>& B, const double r)
 
 	int step = 0;
 	printer << step << ' ' << ti << ' ';
-		for (double x = 0.0; x <= L; x = x+dx)
-			printer << x << ' ';
+	for (double x = 0.0; x <= L; x = x+dx)
+		printer << x << ' ';
 	printer << T0 << '\n';
 
 	// Preenchemos a matriz A (B já foi preenchido):
@@ -162,7 +165,7 @@ void nicolson_diff(vector<vector<double>>& A, vector<double>& B, const double r)
 			A[i][k+1] = 1 + 2*r;
 			A[i][k+2] = -r;
 			k++;
-		}
+	}
 	A[N-1][N-3] = 1.0;
 	A[N-1][N-2] = -4.0;
 	A[N-1][N-1] = gamma;
@@ -173,7 +176,7 @@ void nicolson_diff(vector<vector<double>>& A, vector<double>& B, const double r)
 		for (int i = 1; i < N-1; i++){
 			B[i] = r*B[i-1] + (1-2*r)*B[i] + r*B[i+1] + lambda;
 		}
-		// Cprrige os termos no contorno de B:
+		// Cprrige os termos no contorno:
 		B[0] = 0.0;
 		B[N-1] = (2*h*dx*T0)/kappa;
 		// Resolve o sistema:
@@ -183,6 +186,7 @@ void nicolson_diff(vector<vector<double>>& A, vector<double>& B, const double r)
 	std::cout << "\nCrank-Nicolson com contorno de diferencas finitas e r = " << r << ": " << std::endl;
 	printvec(B);
 }
+
 void nicolson_fic(vector<vector<double>>& A, vector<double>& B, const double r){
 
 	std::fstream printer {"Temperatura_Nicolson_Fic.dat", std::ios::app};
@@ -191,11 +195,11 @@ void nicolson_fic(vector<vector<double>>& A, vector<double>& B, const double r){
 
 	int step = 0;
 	printer << step << ' ' << ti << ' ';
-		for (double x = 0.0; x <= L; x = x+dx)
-			printer << x << ' ';
+	for (double x = 0.0; x <= L; x = x+dx)
+		printer << x << ' ';
 	printer << T0 << '\n';
 
-	// Preenchemos a matriz A (B já foi preenchido):
+	// Preenchemos a matriz A :
 	A[0][0] = 1 + 2*r;
 	A[0][1] = -2*r;
 	int k = 0;
@@ -204,7 +208,7 @@ void nicolson_fic(vector<vector<double>>& A, vector<double>& B, const double r){
 			A[i][k+1] = 1 + 2*r;
 			A[i][k+2] = -r;
 			k++;
-		}
+	}
 	A[N-1][N-2] = -2*r;
 	A[N-1][N-1] = 1 + 2*r + (2*r*dx*h)/kappa;
 
@@ -224,11 +228,13 @@ void nicolson_fic(vector<vector<double>>& A, vector<double>& B, const double r){
 	std::cout << "\nCrank-Nicolson com contorno via nos ficticios e r = " << r << ": " << std::endl;
 	printvec(B);
 }
+
 void printvec(const vector<double>& Vec){
 	for (auto& x : Vec)
 		std::cout << std::setw(10) << std::setprecision(8) << x << ' ';
 	std::cout << std::endl;
 }
+
 void resumesaving(std::fstream& printer, const vector<double>& B, const int iter){
 	printer << iter << ' ' << iter*dt << ' ';
 	for (int i = 0; i < N; i++){
@@ -236,10 +242,19 @@ void resumesaving(std::fstream& printer, const vector<double>& B, const int iter
 	}
 	printer << '\n';
 }
+
 void printmatriz(const vector<vector<double>>& A){
 	for (int k=0; k < N; k++){
 		for (int w = 0; w < N; w++)
 			std::cout << std::setw(10) << std::setprecision(5) << A[k][w] << ' ';
 		std::cout << std::endl;
+	}
+}
+
+void linspacefill(vector<double>& Vec, const int Num, const double xi, const double xf){
+	auto h = (xf - xi) / Num;
+	auto n = Vec.size();
+	for (int i = 0; i < n; i++){
+		Vec[i] = xi + i*h;
 	}
 }
