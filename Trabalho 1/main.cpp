@@ -37,8 +37,8 @@ constexpr double TL {20.0};
 constexpr auto alpha = kappa/(rho*cp);
 constexpr auto r1 = (alpha*dt)/(dx*dx);               // coeficiente r do método implícito
 constexpr auto r2 = (alpha*dt)/(2*dx*dx);             // coeficiente r do Crank-Nicolson
-constexpr auto gamma = 3.0 + ((2*h*dx)/kappa);
-constexpr auto lambda = (g*dt)/(rho*cp);
+constexpr auto eta = 3.0 + ((2*h*dx)/kappa);
+constexpr auto sigma = (g*dt)/(rho*cp);
 
 
 int main (int argc, char* argv[]){
@@ -62,7 +62,7 @@ int main (int argc, char* argv[]){
 	// Salvar em um arquivo a comparação entre todos os métodos:
 	vector<double> X(N, 0.0);
 	linspace(X, N, L, 0.0);
-	std::fstream allprint {"dados.dat", std::ios::app};
+	std::fstream allprint {"dados.dat", std::ios::out|std::ios::trunc};
 	allprint << "t = " << tf << ", dx = " << dx << '\n';
 	allprint << "X IMP_DIF CN_DIF IMP_FIC CN_FIC\n";
 	for (int i = 0; i < N; i++){
@@ -72,7 +72,7 @@ int main (int argc, char* argv[]){
 
 void implicit_diff(vector<vector<double>>& A, vector<double>& B, const double r){
 
-	std::fstream printer {"Temperatura_Implicit_Diff.dat", std::ios::app};
+	std::fstream printer {"Temperatura_Implicit_Diff.dat", std::ios::out|std::ios::trunc};
 	printer << "Perfil de Temperatura via solver implicito, contorno via diferencas finitas.\n";
 	printer << "i t x T\n";
 
@@ -95,14 +95,14 @@ void implicit_diff(vector<vector<double>>& A, vector<double>& B, const double r)
 	}
 	A[N-1][N-3] = 1.0;
 	A[N-1][N-2] = -4.0;
-	A[N-1][N-1] = gamma;
+	A[N-1][N-1] = eta;
 
 	// Os passos iterativos do método:
 	for (step = 1; step < nsteps; step++){
 		// Corrige B:
 		B[0] = 0.0;
 		for (int i = 1; i < N-1; i++){
-			B[i] = B[i] + lambda;
+			B[i] = B[i] + sigma;
 		}
 		B[N-1] = (2*h*dx*T0)/kappa;
 		// Resolve o sistema:
@@ -115,7 +115,7 @@ void implicit_diff(vector<vector<double>>& A, vector<double>& B, const double r)
 
 void implicit_fic(vector<vector<double>>& A, vector<double>& B, const double r){
 
-	std::fstream printer {"Temperatura_Implicit_Fic.dat", std::ios::app};
+	std::fstream printer {"Temperatura_Implicit_Fic.dat", std::ios::out|std::ios::trunc};
 	printer << "Perfil de Temperatura via solver implicito, contorno via nos fictios.\n";
 	printer << "i t x T\n";
 
@@ -142,9 +142,9 @@ void implicit_fic(vector<vector<double>>& A, vector<double>& B, const double r){
 	for (step = 1; step < nsteps; step++){
 		// Corrige B:
 		for (int i = 0; i < N-1; i++){
-			B[i] = B[i] + lambda;
+			B[i] = B[i] + sigma;
 		}
-		B[N-1] = B[N-1] + lambda + (2*r*h*dx*T0)/kappa;
+		B[N-1] = B[N-1] + sigma + (2*r*h*dx*T0)/kappa;
 		// Resolve o sistema:
 		GS_Solver(A, B);
 	}
@@ -155,7 +155,7 @@ void implicit_fic(vector<vector<double>>& A, vector<double>& B, const double r){
 
 void nicolson_diff(vector<vector<double>>& A, vector<double>& B, const double r){
 
-	std::fstream printer {"Temperatura_Nicolson_Diff.dat", std::ios::app};
+	std::fstream printer {"Temperatura_Nicolson_Diff.dat", std::ios::out|std::ios::trunc};
 	printer << "Perfil de Temperatura via Crank-Nicolson, contorno via diferencas finitas.\n";
 	printer << "i t x T\n";
 
@@ -178,13 +178,13 @@ void nicolson_diff(vector<vector<double>>& A, vector<double>& B, const double r)
 	}
 	A[N-1][N-3] = 1.0;
 	A[N-1][N-2] = -4.0;
-	A[N-1][N-1] = gamma;
+	A[N-1][N-1] = eta;
 
 	// Os passos iterativos do método:
 	for (step = 1; step < nsteps; step++){
 		// Corrige os termos internos de B:
 		for (int i = 1; i < N-1; i++){
-			B[i] = r*B[i-1] + (1-2*r)*B[i] + r*B[i+1] + lambda;
+			B[i] = r*B[i-1] + (1-2*r)*B[i] + r*B[i+1] + sigma;
 		}
 		// Corrige os termos no contorno:
 		B[0] = 0.0;
@@ -199,7 +199,7 @@ void nicolson_diff(vector<vector<double>>& A, vector<double>& B, const double r)
 
 void nicolson_fic(vector<vector<double>>& A, vector<double>& B, const double r){
 
-	std::fstream printer {"Temperatura_Nicolson_Fic.dat", std::ios::app};
+	std::fstream printer {"Temperatura_Nicolson_Fic.dat", std::ios::out|std::ios::trunc};
 	printer << "Perfil de Temperatura via Crank-Nicolson, contorno via nos fictios.\n";
 	printer << "i t x T\n";
 
@@ -226,11 +226,11 @@ void nicolson_fic(vector<vector<double>>& A, vector<double>& B, const double r){
 	for (step = 1; step < nsteps; step++){
 		// Corrige os termos internos de B:
 		for (int i = 1; i < N-1; i++){
-			B[i] = r*B[i-1] + (1-2*r)*B[i] + r*B[i+1] + lambda;
+			B[i] = r*B[i-1] + (1-2*r)*B[i] + r*B[i+1] + sigma;
 		}
 		// Corrige os termos no contorno de B:
-		B[0] = (1 - 2*r)*B[0] + (2*r)*B[1] + lambda;
-		B[N-1] = (2*r)*B[N-2] + (1 - 2*r - 2*r*dx*h/kappa)*B[N-1] + (4*r*h*dx*T0)/kappa + lambda;
+		B[0] = (1 - 2*r)*B[0] + (2*r)*B[1] + sigma;
+		B[N-1] = (2*r)*B[N-2] + (1 - 2*r - 2*r*dx*h/kappa)*B[N-1] + (4*r*h*dx*T0)/kappa + sigma;
 		// Resolve o sistema:
 		GS_Solver(A, B);
 	}
@@ -263,7 +263,7 @@ void printmatriz(const vector<vector<double>>& A){
 
 void linspace(vector<double>& Vec, const int Num, const double xf, const double xi){
 	auto h = (xf - xi) / (Num-1);
-	auto n = Vec.size();
+	auto n = static_cast(int)(Vec.size());
 	for (int i = 0; i < n; i++){
 		Vec[i] = xi + i*h;
 	}
