@@ -19,7 +19,7 @@ void printmatriz(const vector<vector<double>>& A);
 
 // Variáveis do domínio da simulação:
 constexpr double L {0.03};                             // comprimento total da placa
-constexpr int N {11};                                  // número de nós da malha
+constexpr int N {31};                                  // número de nós da malha
 constexpr double ti {0.0};                             // tempo inicial da simulação
 constexpr double tf {500.0};                           // tempo final da simulação
 constexpr double dt {0.1};                             // passo de tempo
@@ -263,7 +263,7 @@ void printmatriz(const vector<vector<double>>& A){
 
 void linspace(vector<double>& Vec, const int Num, const double xf, const double xi){
 	auto h = (xf - xi) / (Num-1);
-	auto n = static_cast(int)(Vec.size());
+	auto n = static_cast<int>(Vec.size());
 	for (int i = 0; i < n; i++){
 		Vec[i] = xi + i*h;
 	}
