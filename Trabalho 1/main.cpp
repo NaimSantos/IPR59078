@@ -4,7 +4,7 @@
 #include <iomanip>
 #include <vector>
 
-#include "gsiedel.hpp"
+#include "utilities.hpp"	//Gauss-Siedel e registro de tempo
 
 using std::vector;
 
@@ -22,7 +22,7 @@ constexpr double L {0.03};                             // comprimento total da p
 constexpr int N {31};                                  // número de nós da malha
 constexpr double ti {0.0};                             // tempo inicial da simulação
 constexpr double tf {500.0};                           // tempo final da simulação
-constexpr double dt {0.1};                             // passo de tempo
+constexpr double dt {0.005};                             // passo de tempo
 constexpr auto dx { L / (N - 1)};                      // comprimento do intervalo
 constexpr auto nsteps = static_cast<int>((tf-ti)/dt);  // número de passos de tempo
 
@@ -97,6 +97,7 @@ void implicit_diff(vector<vector<double>>& A, vector<double>& B, const double r)
 	A[N-1][N-2] = -4.0;
 	A[N-1][N-1] = eta;
 
+	CustomTimer timer_impl_diff;
 	// Os passos iterativos do método:
 	for (step = 1; step < nsteps; step++){
 		// Corrige B:
@@ -138,6 +139,7 @@ void implicit_fic(vector<vector<double>>& A, vector<double>& B, const double r){
 	A[N-1][N-2] = -2*r;
 	A[N-1][N-1] = 1 + 2*r + (2*r*dx*h)/kappa;
 
+	CustomTimer timer_impl_fic;
 	// Os passos iterativos do método:
 	for (step = 1; step < nsteps; step++){
 		// Corrige B:
@@ -180,6 +182,7 @@ void nicolson_diff(vector<vector<double>>& A, vector<double>& B, const double r)
 	A[N-1][N-2] = -4.0;
 	A[N-1][N-1] = eta;
 
+	CustomTimer time_cn_dif;
 	// Os passos iterativos do método:
 	for (step = 1; step < nsteps; step++){
 		// Corrige os termos internos de B:
@@ -222,6 +225,7 @@ void nicolson_fic(vector<vector<double>>& A, vector<double>& B, const double r){
 	A[N-1][N-2] = -2*r;
 	A[N-1][N-1] = 1 + 2*r + (2*r*dx*h)/kappa;
 
+	CustomTimer time_cn_fic;
 	// Os passos iterativos do método:
 	for (step = 1; step < nsteps; step++){
 		// Corrige os termos internos de B:
