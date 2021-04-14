@@ -21,10 +21,12 @@ void printmatriz(const vector<vector<double>>& A);
 constexpr double L {0.03};                             // comprimento total da placa
 constexpr int N {33};                                  // número de nós da malha
 constexpr double ti {0.0};                             // tempo inicial da simulação
-constexpr double tf {500.0};                           // tempo final da simulação
+constexpr double tf {1000.0};                           // tempo final da simulação
 constexpr auto dx { L / (N - 1)};                      // comprimento do intervalo
-constexpr auto dt {0.01};                      // comprimento do intervalo
-constexpr auto nsteps = static_cast<int>((tf-ti)/dt);  // número de passos de tempo
+constexpr auto nsteps = 65536;                         // número de passos de tempo
+constexpr auto dt {(tf-ti)/nsteps};                    // passo de tempo
+//constexpr auto dt {0.0025};                            // passo de tempo
+//constexpr auto nsteps = static_cast<int>((tf-ti)/dt);  // número de passos de tempo
 
 // Dados do problema:
 constexpr double kappa {0.6};
@@ -60,7 +62,6 @@ int main (int argc, char* argv[]){
 	nicolson_fic(A4, B4, r2);
 
 	// Salvar em um arquivo a comparação entre todos os métodos:
-	
 	vector<double> X(N, 0.0);
 	linspace(X, N, L, 0.0);
 	std::fstream allprint {"dados.dat", std::ios::out|std::ios::trunc};
@@ -69,7 +70,6 @@ int main (int argc, char* argv[]){
 	for (int i = 0; i < N; i++){
 		allprint << X[i] << ' ' << B1[i] << ' ' << B2[i] << ' ' << B3[i] << ' ' << B4[i] << '\n';
 	}
-	
 	
 	//Estudo da convergência em x = L/2:
 	int yy = (N -1)/2;
