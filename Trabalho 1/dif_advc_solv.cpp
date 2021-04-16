@@ -21,10 +21,10 @@ void printmatriz(const vector<vector<double>>& A);
 constexpr double L {0.03};                             // comprimento total da placa
 constexpr int N {33};                                  // número de nós da malha
 constexpr double ti {0.0};                             // tempo inicial da simulação
-constexpr double tf {1000.0};                           // tempo final da simulação
-constexpr auto dx { L / (N - 1)};                      // comprimento do intervalo
-constexpr auto nsteps = 65536;                         // número de passos de tempo
-constexpr auto dt {(tf-ti)/nsteps};                    // passo de tempo
+constexpr double tf {1000.0};                          // tempo final da simulação
+constexpr auto dx  = L/(N-1);                          // comprimento do intervalo
+constexpr int nsteps {65536};                          // número de passos de tempo
+constexpr auto dt = (tf-ti)/nsteps;                    // passo de tempo
 //constexpr auto dt {0.0025};                            // passo de tempo
 //constexpr auto nsteps = static_cast<int>((tf-ti)/dt);  // número de passos de tempo
 
@@ -72,7 +72,7 @@ int main (int argc, char* argv[]){
 	}
 	
 	//Estudo da convergência em x = L/2:
-	int yy = (N -1)/2;
+	int yy = (N-1)/2;
 	std::fstream saveL2 {"convergencia1.dat", std::ios::out|std::ios::trunc};
 	std::fstream saveL2_a {"convergencia1.dat", std::ios::app};
 	saveL2 << "Analise de Convergencia em t = 500 s, x = L/2\n";
