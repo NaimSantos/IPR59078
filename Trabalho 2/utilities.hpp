@@ -5,6 +5,9 @@
 #include <chrono>
 #include <cmath>         //std::fabs
 #include <algorithm>     //std::max
+#include <functional>
+
+constexpr auto NPI {4*std::atan(1)};
 
 // Registro do tempo de execução de uma parte do código usando o escopo de objetos
 class CustomTimer
@@ -58,4 +61,38 @@ void GS_Solver(const std::vector<std::vector<double>>& A,  std::vector<double>& 
 		counter++;
 	}
 	B = C;
+}
+
+// Integração numérica pela regra 1/3 de Simpson
+double int_simpson(double a, double b, double h, std::function<double (double)> f){	
+	const auto n = static_cast<int>( std::floor((std::fabs(b - a)) / h));
+	//n - 1 pontos internos
+	double sum_odds {0.0};
+	for (int i = 1; i < n; i += 2){
+		sum_odds += f(a + i*h);
+	}
+	double sum_evens {0.0};
+	for (int i = 2; i < n; i += 2){
+		sum_evens += f(a + i*h);
+	}
+	return (f(a) + f(b) + 2*sum_evens + 4*sum_odds) * (h/3);
+}
+
+//A derivada é avaliada por diferencas finitas centrada. Erro: O(h^4)
+double f_diff(double x, double h, std::function<double (double)> f){
+	double res = (-f(x+2*h) + 8*f(x+h) - 8*f(x-h) + f(x-2*h)) / (12*h);
+	return res;
+}
+
+//Raiz numérica via Newton Raphson
+double solveNewton(double x, std::function <double (double)> fnwtn){
+	auto h = fnwtn(x) / f_diff(x, 0.001, fnwtn);
+	unsigned int i {0};
+	while (std::fabs(h) >= 0.00001 && i<100){
+		h = fnwtn(x) / f_diff(x, 0.001, fnwtn);
+		x = x - h;
+		i++;
+	}
+
+	return x;
 }
