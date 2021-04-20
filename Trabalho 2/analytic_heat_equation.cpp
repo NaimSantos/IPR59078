@@ -21,12 +21,12 @@ constexpr auto NPI {4*std::atan(1)};
 // Variáveis do domínio da simulação:
 constexpr double L {1.0};                                  // comprimento total da placa
 constexpr double ti {0.0};                                 // tempo inicial da simulação
-constexpr double tf {50.0};                               // tempo final da simulação
+constexpr double tf {50.0};                                // tempo final da simulação
 constexpr auto dt {0.5};                                   // passo de tempo na série de Fourier
 constexpr auto nsteps = static_cast<int>((tf-ti)/dt);      // número de passos de tempo usando a série de Fourier
 constexpr int N {5};                                       // número de elementos na série de Fourier
 constexpr auto dx = L/(N-1);                               // comprimento do intervalo na série de Fourier
-constexpr auto N_i {L/2};                                  // coeficiente na série
+constexpr auto N_i = L/2;                                  // coeficiente na série
 
 // Dados do problema:
 constexpr double kappa {0.6};
@@ -44,7 +44,7 @@ int main (int argc, char* argv[]){
 	// Solução Analítica
 	vector<vector<double>> C (nsteps, std::vector<double>(N, 0.0));
 	vector<double> D(N, 0.0);
-	linspace(D, N, L, 0.0);
+	linspace(D, N, L, 0.0);	    // escreve em D uma distribuição dos N pontos de avaliação
 
 	analytic_solver(C, D);
 }
@@ -53,9 +53,15 @@ void analytic_solver(vector<vector<double>>& T, const vector<double>& X){
 	//A is a 2D-vector: rows for time, collumns for position
 	//B is a 1D-vector with the positions
 	
-	for (int k = 0; k < N; k++)
+	for (int k = 0; k < N; k++){
 		T[0][k] = f1(X[k]);
+	}
+	for (int i = 1; i < nsteps; i++){
+		for (int j = 0; j < N; j++)
+			T[i][j]=Txt(j*dx, i*dt);
+	}
 	
+	// Salvar os resultados em um arquivo:
 	std::fstream printer {"Temperatura_Analitica.dat", std::ios::out|std::ios::trunc};
 	printer << "Perfil de Temperatura via solucao analitica\n";
 	printer << "t";
@@ -65,28 +71,12 @@ void analytic_solver(vector<vector<double>>& T, const vector<double>& X){
 	for (int k = 0; k < N; k++)
 		printer << ' ' << X[k] ;
 	printer <<"\n ";
-	for (int k = 0; k < N; k++)
-		printer << ' ' <<T[0][k];
-	printer <<"\n ";
-	
-	
-	for (int i = 1; i < N; i++){
-		for (int j = 0; j < N; j++)
-			T[i][j]=Txt(j*dx, i*dt);
-	}
-	for (int i = 1; i < nsteps; i++){
+
+	for (int i = 0; i < nsteps; i++){
 		for (int j = 0; j < N; j++){
 			printer << ' ' << T[i][j];
 		}
 		printer <<"\n ";
-	}
-}
-
-void linspace(vector<double>& Vec, const int Num, const double xf, const double xi){
-	auto h = (xf - xi) / (Num-1);
-	auto n = static_cast<int>(Vec.size());
-	for (int i = 0; i < n; i++){
-		Vec[i] = xi + i*h;
 	}
 }
 
@@ -101,6 +91,7 @@ double f2(double x){
 
 //mu_i = i * pi / L
 double Txt(double x, double t){
+	std::cout << "\nx = " << x << ", t=" << t ;
 	double res {0.0}; double res1{0.0}; double res2{0.0}; double res3{0.0};
 
 	for (int i = 1; i <= 5; i++){
@@ -111,6 +102,7 @@ double Txt(double x, double t){
 	}
 	return res;
 }
+
 double fxsenx(double x, double i){
 	if (x <= 0.5*L) 
 		return x*std::sin(x*i*NPI/L);
@@ -118,6 +110,7 @@ double fxsenx(double x, double i){
 		return (L - x)*std::sin(x*i*NPI/L);
 		
 }
+
 // Integração numérica pela regra do trapézio
 double int_trapz(double a, double b, const double i){
 	const double h = 0.000001;           // passo
@@ -146,6 +139,15 @@ double int_trapz(double a, double b, const double i){
 double f_p1(const double x, const int i){
 	return x*std::sin(i*NPI*x/L);
 }
+
 double f_p2(const double x, const int i){
 	return (L - x)*std::sin(i*NPI*x/L);
+}
+
+void linspace(vector<double>& Vec, const int Num, const double xf, const double xi){
+	auto h = (xf - xi) / (Num-1);
+	auto n = static_cast<int>(Vec.size());
+	for (int i = 0; i < n; i++){
+		Vec[i] = xi + i*h;
+	}
 }
