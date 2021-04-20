@@ -4,8 +4,6 @@
 #include <iomanip>
 #include <vector>
 
-#include "utilities.hpp"	//Gauss-Siedel, registro de tempo e integração numérica
-
 using std::vector;
 
 void analytic_solver(vector<vector<double>>& A, const vector<double>& B);
@@ -17,11 +15,14 @@ double int_trapz(double a, double b, const double i);
 double f_p1(const double x, const int i);
 double f_p2(const double x, const int i);
 
+// Estimativa para pi:
+constexpr auto NPI {4*std::atan(1)};
+
 // Variáveis do domínio da simulação:
 constexpr double L {1.0};                                  // comprimento total da placa
 constexpr double ti {0.0};                                 // tempo inicial da simulação
-constexpr double tf {500.0};                               // tempo final da simulação
-constexpr auto dt {0.1};                                   // passo de tempo na série de Fourier
+constexpr double tf {50.0};                               // tempo final da simulação
+constexpr auto dt {0.5};                                   // passo de tempo na série de Fourier
 constexpr auto nsteps = static_cast<int>((tf-ti)/dt);      // número de passos de tempo usando a série de Fourier
 constexpr int N {5};                                       // número de elementos na série de Fourier
 constexpr auto dx = L/(N-1);                               // comprimento do intervalo na série de Fourier
@@ -40,7 +41,7 @@ constexpr auto alpha = kappa/(rho*cp);
 
 int main (int argc, char* argv[]){
 	
-	//solução Analítica
+	// Solução Analítica
 	vector<vector<double>> C (nsteps, std::vector<double>(N, 0.0));
 	vector<double> D(N, 0.0);
 	linspace(D, N, L, 0.0);
