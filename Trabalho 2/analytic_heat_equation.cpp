@@ -9,10 +9,7 @@
 using std::vector;
 
 void analytic_solver(vector<vector<double>>& A, const vector<double>& B);
-void resumesaving(std::fstream& printer, const vector<double>& B, const int iter);
 void linspace(vector<double>& Vec, const int Num, const double xf = 1.0, const double xi = 0.0);
-void printvec(const vector<double>& Vec);
-void printmatriz(const vector<vector<double>>& A);
 double f1(double x);
 double f2(double x);
 double Txt(double x, double t);
@@ -22,16 +19,12 @@ double f_p2(const double x, const int i);
 
 // Variáveis do domínio da simulação:
 constexpr double L {1.0};                                  // comprimento total da placa
-constexpr int N {17};                                      // número de nós da malha
 constexpr double ti {0.0};                                 // tempo inicial da simulação
 constexpr double tf {500.0};                               // tempo final da simulação
-constexpr auto dx = L/(N-1);                               // comprimento do intervalo
-constexpr auto dt {0.005};                                 // passo de tempo
-constexpr auto nsteps = static_cast<int>((tf-ti)/dt);      // número de passos de tempo
-constexpr auto dt_f {0.1};                                 // passo de tempo na série de Fourier
-constexpr auto nsteps_f = static_cast<int>((tf-ti)/dt_f);  // número de passos de tempo usando a série de Fourier
-constexpr int NF {5};                                      // número de elementos na série de Fourier
-constexpr auto dx_f = L/(NF-1);                            // comprimento do intervalo na série de Fourier
+constexpr auto dt {0.1};                                   // passo de tempo na série de Fourier
+constexpr auto nsteps = static_cast<int>((tf-ti)/dt);      // número de passos de tempo usando a série de Fourier
+constexpr int N {5};                                       // número de elementos na série de Fourier
+constexpr auto dx = L/(N-1);                               // comprimento do intervalo na série de Fourier
 constexpr auto N_i {L/2};                                  // coeficiente na série
 
 // Dados do problema:
@@ -48,9 +41,9 @@ constexpr auto alpha = kappa/(rho*cp);
 int main (int argc, char* argv[]){
 	
 	//solução Analítica
-	vector<vector<double>> C (nsteps_f, std::vector<double>(NF, 0.0));
-	vector<double> D(NF, 0.0);
-	linspace(D, NF, L, 0.0);
+	vector<vector<double>> C (nsteps, std::vector<double>(N, 0.0));
+	vector<double> D(N, 0.0);
+	linspace(D, N, L, 0.0);
 
 	analytic_solver(C, D);
 }
@@ -59,26 +52,26 @@ void analytic_solver(vector<vector<double>>& T, const vector<double>& X){
 	//A is a 2D-vector: rows for time, collumns for position
 	//B is a 1D-vector with the positions
 	
-	for (int k = 0; k < NF; k++)
+	for (int k = 0; k < N; k++)
 		T[0][k] = f1(X[k]);
 	
 	std::fstream printer {"Temperatura_Analitica.dat", std::ios::out|std::ios::trunc};
 	printer << "Perfil de Temperatura via solucao analitica\n";
 	printer << "t";
-	for (int k = 0; k < NF; k++)
+	for (int k = 0; k < N; k++)
 		printer << " X" << k;
 	printer <<"\n ";
-	for (int k = 0; k < NF; k++)
+	for (int k = 0; k < N; k++)
 		printer << ' ' << X[k] ;
 	printer <<"\n ";
-	for (int k = 0; k < NF; k++)
+	for (int k = 0; k < N; k++)
 		printer << ' ' <<T[0][k];
 	printer <<"\n ";
 	
 	
 	for (int i = 1; i < N; i++){
-		for (int j = 0; j < NF; j++)
-			T[i][j]=Txt(j*dx_f, i*dt);
+		for (int j = 0; j < N; j++)
+			T[i][j]=Txt(j*dx, i*dt);
 	}
 	/*
 	for (int i = 1; i <= N; i++){
@@ -87,27 +80,6 @@ void analytic_solver(vector<vector<double>>& T, const vector<double>& X){
 		total = std::exp(-alpha*(mu_i*mu_i) * t) * std::sin(mu_i) * intg / N_i;
 	}
 	*/
-}
-void printvec(const vector<double>& Vec){
-	for (auto& x : Vec)
-		std::cout << std::setw(10) << std::setprecision(8) << x << ' ';
-	std::cout << std::endl;
-}
-
-void resumesaving(std::fstream& printer, const vector<double>& B, const int iter){
-	printer << iter << ' ' << iter*dt << ' ';
-	for (int i = 0; i < N; i++){
-		printer << B[i] << ' ';
-	}
-	printer << '\n';
-}
-
-void printmatriz(const vector<vector<double>>& A){
-	for (int k=0; k < N; k++){
-		for (int w = 0; w < N; w++)
-			std::cout << std::setw(10) << std::setprecision(7) << A[k][w] << ' ';
-		std::cout << std::endl;
-	}
 }
 
 void linspace(vector<double>& Vec, const int Num, const double xf, const double xi){
