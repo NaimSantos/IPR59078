@@ -73,13 +73,12 @@ void analytic_solver(vector<vector<double>>& T, const vector<double>& X){
 		for (int j = 0; j < N; j++)
 			T[i][j]=Txt(j*dx, i*dt);
 	}
-	/*
-	for (int i = 1; i <= N; i++){
-		auto intg = int_trapz(0, L, 0.00001, f);
-		auto total {0.0};
-		total = std::exp(-alpha*(mu_i*mu_i) * t) * std::sin(mu_i) * intg / N_i;
+	for (int i = 1; i < nsteps; i++){
+		for (int j = 0; j < N; j++){
+			printer << ' ' << T[i][j];
+		}
+		printer <<"\n ";
 	}
-	*/
 }
 
 void linspace(vector<double>& Vec, const int Num, const double xf, const double xi){
@@ -93,10 +92,12 @@ void linspace(vector<double>& Vec, const int Num, const double xf, const double 
 double f1(double x){
 	return (x <= 0.5*L) ? (x) : (L - x);
 }
+
 double f2(double x){
 	auto res = std::sin(x);
 	return (x <= 0.5) ? (x * res) : ((1 - x)*res);
 }
+
 //mu_i = i * pi / L
 double Txt(double x, double t){
 	double res {0.0}; double res1{0.0}; double res2{0.0}; double res3{0.0};
@@ -105,6 +106,7 @@ double Txt(double x, double t){
 		res1 = exp(- alpha * t * (std::pow(i*NPI/L, 2)));
 		res2 = std::sin(x*i*NPI/L);
 		res3 = int_trapz(0, L, i);
+		res += (1/N_i)*(res1 + res2 + res3);
 	}
 	return res;
 }
@@ -118,7 +120,7 @@ double fxsenx(double x, double i){
 // Integração numérica pela regra do trapézio
 double int_trapz(double a, double b, const double i){
 	const double h = 0.000001;           // passo
-	const auto L2 = (b - a) /2;	        // metade do intervalo (L/2)
+	const auto L2 = (b - a)/2;	        // metade do intervalo (L/2)
 	
 	// Primeira parte da integral, de 0 a L/2:
 	double res1 {0.0};
