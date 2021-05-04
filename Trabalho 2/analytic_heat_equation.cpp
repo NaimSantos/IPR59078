@@ -18,7 +18,7 @@ double f_p1(const double x, const int i);
 double f_p2(const double x, const int i);
 
 // Estimativa para pi:
-constexpr auto NPI {4*std::atan(1)};
+constexpr auto NPI {3.1415926535897932384};
 
 // Variáveis do domínio da simulação:
 constexpr double L {1.0};                                  // comprimento total da placa
