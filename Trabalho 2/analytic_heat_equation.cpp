@@ -16,19 +16,21 @@ double FourierAdjust(double x, double t);
 double int_trapz(double a, double b, const double i);
 double f_p1(const double x, const int i);
 double f_p2(const double x, const int i);
+double roots(double x, std::function <double (double)> fnwtn);
+double f_diff(double x, double h, std::function<double (double)> f);
 
 // Estimativa para pi:
-constexpr auto NPI {3.1415926535897932384};
+constexpr double NPI {3.1415926535897932384};
 
 // Variáveis do domínio da simulação:
-constexpr double L {1.0};                                  // comprimento total da placa
-constexpr double ti {0.0};                                 // tempo inicial da simulação
-constexpr double tf {50.0};                               // tempo final da simulação
-constexpr auto dt {0.1};                                   // passo de tempo na série de Fourier
+constexpr double L {1.0};                                      // comprimento total da placa
+constexpr double ti {0.0};                                     // tempo inicial da simulação
+constexpr double tf {50.0};                                    // tempo final da simulação
+constexpr auto dt {0.1};                                       // passo de tempo na série de Fourier
 constexpr auto nsteps = static_cast<int>((tf-ti)/dt) + 1;      // número de passos de tempo usando a série de Fourier
-constexpr int N {5};                                       // número de elementos na série de Fourier
-constexpr auto dx {0.1};                                  // comprimento do intervalo na série de Fourier
-constexpr auto N_i = L/2;                                  // coeficiente na série
+constexpr int N {5};                                           // número de elementos na série de Fourier
+constexpr auto dx {0.1};                                       // comprimento do intervalo na série de Fourier
+constexpr auto N_i = L/2;                                      // coeficiente na série
 constexpr auto Npoints = L/dx + 1;
 
 // Dados do problema:
@@ -41,9 +43,7 @@ constexpr double T0 {0.0};
 constexpr double TL {0.0};
 constexpr auto alpha = kappa/(rho*cp);
 
-
 int main (int argc, char* argv[]){
-
 	printparameters();
 	// Solução Analítica
 	vector<vector<double>> T (nsteps, std::vector<double>(Npoints, 0.0));
@@ -63,7 +63,6 @@ void analytic_solver(vector<vector<double>>& T, const vector<double>& X){
 			T[i][j]=FourierAdjust(j*dx, i*dt);
 		}
 	}
-
 	// Salvar os resultados em um arquivo:
 	savedata(T, X);
 }
@@ -71,13 +70,11 @@ void analytic_solver(vector<vector<double>>& T, const vector<double>& X){
 double f1(double x){
 	return (x <= 0.5*L) ? (x) : (L - x);
 }
-
 double f2(double x){
 	auto res = std::sin(x);
 	return (x <= 0.5) ? (x * res) : ((1 - x)*res);
 }
 
-// mu_i = i * pi / L
 double FourierAdjust(double x, double t){
 	double res {0.0};
 	double res1{0.0};
@@ -92,7 +89,6 @@ double FourierAdjust(double x, double t){
 	}
 	return res;
 }
-
 
 // Integração numérica pela regra do trapézio
 double int_trapz(double a, double b, const double i){
@@ -123,7 +119,6 @@ double int_trapz(double a, double b, const double i){
 double f_p1(const double x, const int i){
 	return 10*x*std::sin(i*NPI*x/L);
 }
-
 double f_p2(const double x, const int i){
 	return 10*(L - x)*std::sin(i*NPI*x/L);
 }
@@ -160,7 +155,22 @@ void savedata(const vector<vector<double>>& T, const vector<double>& X){
 			printer <<' ' << T[i][j];
 		}
 		t+=dt;
-		
 	}
-	
+}
+
+// A derivada é avaliada por diferencas finitas centrada. Erro: O(h^4)
+double f_diff(double x, double h, std::function<double (double)> f){
+	double res = (-f(x+2*h) + 8*f(x+h) - 8*f(x-h) + f(x-2*h)) / (12*h);
+	return res;
+}
+// Cálculo de raiz via Newton-Rhaphson
+double roots(double x, std::function <double (double)> fnwtn){
+	auto h = fnwtn(x) / f_diff(x, 0.001, fnwtn);
+	unsigned int i {0};
+	while (std::fabs(h) >= 0.00001 && i<100){
+		h = fnwtn(x) / f_diff(x, 0.001, fnwtn);
+		x = x - h;
+		i++;
+	}
+	return x;
 }
