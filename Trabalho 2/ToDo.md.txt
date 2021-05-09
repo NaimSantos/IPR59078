@@ -1,0 +1,2 @@
+- [] Implentar a solução das raízes via bisseção
+- [] Criar arquivos do Gnuplot
