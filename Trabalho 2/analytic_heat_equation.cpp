@@ -10,8 +10,8 @@ using std::vector;
 void analytic_solver(vector<vector<double>>& A, const vector<double>& B);
 double FourierAdjust(double x, double t, const vector<double>& EVal);
 double int_trapz(double a, double b, const double i);
-double f_init(const double x, const double i, bool onintegral = false);
-double Tfx(const double x);
+double Tx_xt_0(const double x)
+double f_intg(const double x, const int n);
 double invers_N(const double Bn);
 double eigenvalue(const double Bn);
 double solveNewton(double x, std::function<double (double)> f);
@@ -26,10 +26,10 @@ constexpr auto NPI = 4*std::atan(1);
 // Variáveis do domínio da simulação:
 constexpr double L {0.03};                                   // comprimento total da placa
 constexpr double ti {0.0};                                   // tempo inicial da simulação
-constexpr double tf {50.0};                                  // tempo final da simulação
-constexpr auto dt {0.1};                                     // passo de tempo na série de Fourier
+constexpr double tf {500.0};                                  // tempo final da simulação
+constexpr auto dt {0.5};                                     // passo de tempo na série de Fourier
 constexpr auto nsteps = static_cast<int>((tf-ti)/dt) + 1;    // número de passos de tempo usando a série de Fourier
-constexpr auto dx {0.0025};                                  // comprimento do intervalo na série de Fourier
+constexpr auto dx {0.005};                                  // comprimento do intervalo na série de Fourier
 constexpr auto Npoints = L/dx + 1;
 
 // Dados do problema:
@@ -58,14 +58,14 @@ void analytic_solver(vector<vector<double>>& T, const vector<double>& X){
 	// B is a 1D-vector with the positions
 
 	// Calcular os autovalores:
-	int nroots = 10;                        // número de auto vetores (truncamento da série de Fourier)
+	int nroots = 7;                         // número de autovalores (truncamento da série de Fourier)
 	vector<double> EVal (nroots, 0.0);      // array onde nroots autovalores serão armazenados.
 
 	EVal[0] = solveNewton(20, eigenvalue);
 	for (int i = 1; i < nroots; i++){
 		EVal[i] =  solveNewton(i*100, eigenvalue);
 	}
-	//for (const auto& x : EVal) std::cout << std::setprecision(6) << x << ' ';
+	for (const auto& x : EVal) std::cout << std::setprecision(6) << x << ' ';
 
 	for (int i = 0; i < nsteps; i++){
 		for (int j = 0; j < Npoints; j++){
@@ -80,14 +80,14 @@ void analytic_solver(vector<vector<double>>& T, const vector<double>& X){
 
 double FourierAdjust(double x, double t, const vector<double>& EVal){
 	double res {0.0}, res1{0.0}, res2{0.0}, res3{0.0}, res4 {0.0};
-	auto m = EVal.size(); // número de autovalores usados;
+	auto tt = EVal.size();              // número de autovalores usados
 
-	for (int j = 0; j < m; j++){
-		auto i = EVal[j];
-		res1 = invers_N(i);
-		res2 = std::exp(- alpha * std::pow(i*NPI/L, 2) * t);
-		res3 = std::cos(x*i*NPI/L);
-		res4 = int_trapz(0, L, i);
+	for (int n = 0; n < tt; j++){
+		auto eigval = EVal[n];
+		res1 = invers_N(eigval);
+		res2 = std::exp(- alpha * std::pow(eigval, 2) * t);
+		res3 = std::cos(x*eigval);
+		res4 = int_trapz(0, L, n);
 
 		res += (res1 * res2 * res3 * res4);
 	}
@@ -95,34 +95,37 @@ double FourierAdjust(double x, double t, const vector<double>& EVal){
 }
 
 // Integração numérica pela regra do trapézio
-double int_trapz(double a, double b, const double i){
+double int_trapz(double a, double b, const int n){
 	double res {0.0};
 	const double h = 0.0001;                // passo da integração numérica
 	const auto n = static_cast<int>( std::floor((std::fabs(b - a)) / h));
 
 	for (int k = 0; k < n - 1; k++){
-		res += f_init(a + k*h, i, true);
+		res += f_intg(a + k*h, n);
 	}
-	res += (f_init(a, i, true) + f_init(b, i, true) ) / 2;
+	res += (f_intg(a, n) + f_intg(b, n)) / 2;
 	res *= h;
 	return res;
 }
-
 // Função inicial do problema:
-double f_init(const double x, double i, bool onintegral){
-	double res = T_inf - ( (-g*x*x)/(2*kappa) + T_inf + (g*L*L)/(2*kappa) + g*L/h);
-	if (onintegral)
-		return res*std::cos(x*i*NPI/L);
-	else
-		return res;
+double Tx_xt_0(const double x){
+	return (g*x*x)/(2*kappa) - (g*L*L)/(2*kappa) - g*L/h;
 }
 
+// Função na integral dos coeficientes:
+double f_intg(const double x, const int n){
+	auto res = Tx_xt_0(x)
+	return res*std::cos(n*NPI*x/L);
+}
+
+// Solução filtro:
 double Tfx(const double x){
-	return (-g*x*x)/(2*kappa) + T_inf + (g*L*L)/(2*kappa) + g*L/h;
+	return T_inf -(g*x*x)/(2*kappa) + (g*L*L)/(2*kappa) + (g*L)/h;
 }
 
+// Coeficiente 1/N:
 double invers_N(const double Bn){
-	return 2 * (Bn*Bn + H2*H2) / (L* (Bn*Bn + H2*H2) + H2);
+	return 2 * ((Bn*Bn + H2*H2) / (L*(Bn*Bn + H2*H2) + H2));
 }
 
 double eigenvalue(const double Bn){
@@ -156,8 +159,8 @@ void linspace(vector<double>& Vec, const int Num, const double xf, const double 
 }
 
 void printparameters(){
-	std::cout << "L = " << L << "\tdx = " << dx << "\tNpoints = " << Npoints
-		<< "\ntempo total = " << tf << "\tdt = " << dt << "\tnsteps = "
+	std::cout << "L = " << L << " dx = " << dx << " Npoints = " << Npoints
+		<< " tempo total = " << tf << " dt = " << dt << " nsteps = "
 		<< nsteps << std::endl;
 }
 
