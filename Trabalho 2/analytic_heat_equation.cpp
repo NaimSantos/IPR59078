@@ -9,9 +9,10 @@ using std::vector;
 
 void analytic_solver(vector<vector<double>>& A, const vector<double>& B);
 double FourierAdjust(double x, double t, const vector<double>& EVal);
-double int_trapz(double a, double b, const double i);
-double Tx_xt_0(const double x)
-double f_intg(const double x, const int n);
+double int_trapz(double a, double b, const double n);
+double Tx_xt_0(const double x);
+double Tfx(const double x);
+double f_intg(const double x, const int value);
 double invers_N(const double Bn);
 double eigenvalue(const double Bn);
 double solveNewton(double x, std::function<double (double)> f);
@@ -19,18 +20,18 @@ double f_diff(double x, double h, std::function<double (double)> f);
 void linspace(vector<double>& Vec, const int Num, const double xf = 1.0, const double xi = 0.0);
 void printparameters();
 void savedata(const vector<vector<double>>& T, const vector<double>& X);
-
+void savetoplot(const vector<vector<double>>& T, const vector<double>& X);
 
 constexpr auto NPI = 4*std::atan(1);
 
 // Variáveis do domínio da simulação:
 constexpr double L {0.03};                                   // comprimento total da placa
 constexpr double ti {0.0};                                   // tempo inicial da simulação
-constexpr double tf {500.0};                                  // tempo final da simulação
-constexpr auto dt {0.5};                                     // passo de tempo na série de Fourier
+constexpr double tf {500.0};                                 // tempo final da simulação
+constexpr auto dt {0.05};                                     // passo de tempo na série de Fourier
 constexpr auto nsteps = static_cast<int>((tf-ti)/dt) + 1;    // número de passos de tempo usando a série de Fourier
-constexpr auto dx {0.005};                                  // comprimento do intervalo na série de Fourier
-constexpr auto Npoints = L/dx + 1;
+constexpr auto dx {0.001};                                   // comprimento do intervalo na série de Fourier
+constexpr auto Npoints = L/dx + 1;                           // número de pontos avaliados para x 
 
 // Dados do problema:
 constexpr double kappa {0.6};
@@ -58,13 +59,14 @@ void analytic_solver(vector<vector<double>>& T, const vector<double>& X){
 	// B is a 1D-vector with the positions
 
 	// Calcular os autovalores:
-	int nroots = 7;                         // número de autovalores (truncamento da série de Fourier)
+	int nroots = 11;                         // número de autovalores (truncamento da série de Fourier)
 	vector<double> EVal (nroots, 0.0);      // array onde nroots autovalores serão armazenados.
 
 	EVal[0] = solveNewton(20, eigenvalue);
 	for (int i = 1; i < nroots; i++){
 		EVal[i] =  solveNewton(i*100, eigenvalue);
 	}
+	std::cout << "Autovalores obtidos: " ;
 	for (const auto& x : EVal) std::cout << std::setprecision(6) << x << ' ';
 
 	for (int i = 0; i < nsteps; i++){
@@ -76,18 +78,19 @@ void analytic_solver(vector<vector<double>>& T, const vector<double>& X){
 	}
 	// Salvar os resultados em um arquivo:
 	savedata(T, X);
+	savetoplot(T, X);
 }
 
 double FourierAdjust(double x, double t, const vector<double>& EVal){
 	double res {0.0}, res1{0.0}, res2{0.0}, res3{0.0}, res4 {0.0};
 	auto tt = EVal.size();              // número de autovalores usados
 
-	for (int n = 0; n < tt; j++){
+	for (int n = 0; n < tt; n++){
 		auto eigval = EVal[n];
 		res1 = invers_N(eigval);
 		res2 = std::exp(- alpha * std::pow(eigval, 2) * t);
 		res3 = std::cos(x*eigval);
-		res4 = int_trapz(0, L, n);
+		res4 = int_trapz(0, L, eigval);
 
 		res += (res1 * res2 * res3 * res4);
 	}
@@ -95,15 +98,15 @@ double FourierAdjust(double x, double t, const vector<double>& EVal){
 }
 
 // Integração numérica pela regra do trapézio
-double int_trapz(double a, double b, const int n){
+double int_trapz(double a, double b, const double value){
 	double res {0.0};
 	const double h = 0.0001;                // passo da integração numérica
-	const auto n = static_cast<int>( std::floor((std::fabs(b - a)) / h));
+	const auto m = static_cast<int>( std::floor((std::fabs(b - a)) / h));
 
-	for (int k = 0; k < n - 1; k++){
-		res += f_intg(a + k*h, n);
+	for (int k = 0; k < m - 1; k++){
+		res += f_intg(a + k*h, value);
 	}
-	res += (f_intg(a, n) + f_intg(b, n)) / 2;
+	res += (f_intg(a, value) + f_intg(b, value)) / 2;
 	res *= h;
 	return res;
 }
@@ -113,9 +116,9 @@ double Tx_xt_0(const double x){
 }
 
 // Função na integral dos coeficientes:
-double f_intg(const double x, const int n){
-	auto res = Tx_xt_0(x)
-	return res*std::cos(n*NPI*x/L);
+double f_intg(const double x, const int value){
+	auto res = Tx_xt_0(x);
+	return res*std::cos(x*value);
 }
 
 // Solução filtro:
@@ -183,4 +186,14 @@ void savedata(const vector<vector<double>>& T, const vector<double>& X){
 		}
 		t+=dt;
 	}
+}
+void savetoplot(const vector<vector<double>>& T, const vector<double>& X){
+
+	std::cout << "\nSaving data to plot..." << std::endl;
+	std::fstream printer {"Plot_Analitico.dat", std::ios::out|std::ios::trunc};
+	auto Final = nsteps - 1;
+	printer << "Perfil de Temperatura via solucao analitica (500s)\n";
+	printer << "Point Temperature\n";
+	for (int k = 0; k < Npoints; k++)
+		printer << X[k] << " " << T[Final][k] << std::endl;
 }
