@@ -10,7 +10,7 @@ Um repositório com minhas implementações de exercícios e trabalhos da discip
 	* Condições de contorno: segundo tipo (Neumann) no lado esquerdo, terceiro tipo (Robin) no lado direito.
 * Discretização do domínio por diferenças finitas.
 * Discretização dos contornos via diferenças finitas e via nós-fictícios.
-* Esquema implícito simples e esquema de Cranck-Nicolson.
+* Esquema implícito simples e esquema da Cranck-Nicolson.
 
 
 ## Trabalho 2:
@@ -27,11 +27,11 @@ Um repositório com minhas implementações de exercícios e trabalhos da discip
 ## Wave Equation
 
 * Solução analítica da equação da onda
-	* d2u/dx2 = d2u/dt2 + 2*beta*du/dt
+	* d2u/dx2 = d2u/dt2 + 2 beta * du/dt
 	* u(0,t) = 0
 	* u(1,t) = 0
 	* u(x,0) = x(1-x^2)
-	* du/dt = 0  em t =0
+	* du/dt = 0 em t=0
 	* 0 <= x <= 1
 	* 0 < beta < 1
 
