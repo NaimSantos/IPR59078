@@ -27,12 +27,13 @@ Um repositório com minhas implementações de exercícios e trabalhos da discip
 ## Wave Equation
 
 * Solução analítica da equação da onda
-	* d2u/dx2 = d2x/dt2 + 2*beta*du/dt
+	* d2u/dx2 = d2u/dt2 + 2 beta * du/dt
 	* u(0,t) = 0
 	* u(1,t) = 0
 	* u(x,0) = x(1-x^2)
-	* du/dt (t=0) = 0
-	* 0 <= x <= 1 e 0 < beta < 1
+	* du/dt = 0 em t=0
+	* 0 <= x <= 1
+	* 0 < beta < 1
 
 * Solução via série de Fourier
 	* Integral no cálculo dos coeficientes da série via integração numérica por regra do trapézio.
