@@ -5,13 +5,13 @@ import math
 
 
 # Variáveis do domínio da simulação e do problema:
-beta = 0.5                       # coeficiente de amortecimento
+beta = 0.01                       # coeficiente de amortecimento
 L = 1.0                          # comprimento total da corda
 ti = 0.0                         # tempo inicial da simulação
-tf = int(50.0)                   # tempo final da simulação
-N = 5                            # número de elementos na série de Fourier
+tf = int(200.0)                   # tempo final da simulação
+N = 7                            # número de elementos na série de Fourier
 dx = 0.05                        # intervalo em x
-dt = 1                           # passo de tempo
+dt = 0.5                           # passo de tempo
 npoints  = int(L/dx + 1)         # número de pontos de avaliação de x
 nsteps = int((tf - ti) / dt)     # número de passos de tempo
 
@@ -94,7 +94,7 @@ solver();
 plotfxy(X, T[0, :])
 
 fig = plt.figure()
-plt.title("Solucao da equacao da onda")
+plt.title("Solucao da equacao da onda , beta = 0.01")
 plt.xlabel("Comprimento", fontsize = 11)
 plt.ylabel("Deslocamento", fontsize = 11)
 ax = plt.axes(xlim=(0, 1), ylim=(0, 0.45))
