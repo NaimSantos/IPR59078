@@ -5,13 +5,13 @@ import math
 
 
 # Variáveis do domínio da simulação e do problema:
-beta = 0.01                       # coeficiente de amortecimento
+beta = 0.9                       # coeficiente de amortecimento
 L = 1.0                          # comprimento total da corda
 ti = 0.0                         # tempo inicial da simulação
-tf = int(200.0)                   # tempo final da simulação
-N = 7                            # número de elementos na série de Fourier
+tf = int(30.0)                   # tempo final da simulação
+N = 5                            # número de elementos na série de Fourier
 dx = 0.05                        # intervalo em x
-dt = 0.5                           # passo de tempo
+dt = 0.1                           # passo de tempo
 npoints  = int(L/dx + 1)         # número de pontos de avaliação de x
 nsteps = int((tf - ti) / dt)     # número de passos de tempo
 
@@ -44,7 +44,7 @@ def function_target(x, n) :
 
 def int_trapz(a, b, n) :
     res  = 0.0
-    h = 0.00005
+    h = 0.0001
     m = int((b - a)/h)
 
     k = 0
@@ -91,23 +91,23 @@ fill_eigen_values(V);
 print(V)
 solver();
 
-plotfxy(X, T[0, :])
+#plotfxy(X, T[0, :])
 
 fig = plt.figure()
-plt.title("Solucao da equacao da onda , beta = 0.01")
+plt.title("Solucao da equação da onda, beta = 0.9")
 plt.xlabel("Comprimento", fontsize = 11)
 plt.ylabel("Deslocamento", fontsize = 11)
-ax = plt.axes(xlim=(0, 1), ylim=(0, 0.45))
+ax = plt.axes(xlim=(0, 1), ylim=(-0.45, 0.45))
 time_text = ax.text(0.02, 0.95, '', transform=ax.transAxes)
 line, = ax.plot([], [], lw=2)
 
-# initialization function: plot the background of each frame
+# funão de inicialização, chamada a cada frame
 def init():
     line.set_data([], [])
     time_text.set_text('')
     return line, time_text
 
-# animation function.  This is called sequentially
+# função para a animação
 def animate(i):
     x = X
     y = T[i]
@@ -115,7 +115,7 @@ def animate(i):
     line.set_data(x, y)
     return line, time_text
 
-anim = animation.FuncAnimation(fig, animate, init_func=init,frames=nsteps, interval=dt, blit=True)
+anim = animation.FuncAnimation(fig, animate, init_func=init,frames=nsteps, interval=100, blit=True)
 
-anim.save('temperatura.gif')
+anim.save('resultado_beta_.gif')
 plt.show()
