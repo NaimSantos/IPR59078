@@ -5,15 +5,15 @@ import math
 
 
 # Variáveis do domínio da simulação e do problema:
-beta = 0.5                   # coeficiente de amortecimento
-L = 1.0                      # comprimento total da corda
-ti = 0.0                     # tempo inicial da simulação
-tf = int(50.0)               # tempo final da simulação
-N = 5                        # número de elementos na série de Fourier
-dx = 0.05                     # intervalo em x
-dt = 1                       # passo de tempo
-npoints  = int(L/dx + 1)     # número de pontos de avaliação de x
-nsteps = int((tf - ti) / dt)      # número de passos de tempo
+beta = 0.5                       # coeficiente de amortecimento
+L = 1.0                          # comprimento total da corda
+ti = 0.0                         # tempo inicial da simulação
+tf = int(50.0)                   # tempo final da simulação
+N = 5                            # número de elementos na série de Fourier
+dx = 0.05                        # intervalo em x
+dt = 1                           # passo de tempo
+npoints  = int(L/dx + 1)         # número de pontos de avaliação de x
+nsteps = int((tf - ti) / dt)     # número de passos de tempo
 
 # Arrays utilizados
 T = np.zeros((nsteps, npoints))   # N elementos, 100 tempos
@@ -21,19 +21,13 @@ X = np.linspace(0.0, L, npoints)  # posições em x
 ts = np.linspace(ti, tf, nsteps)  # tempos
 V = np.zeros(N)                   # autovalores
 
-print(np.shape(T))
-print(np.shape(X))
-print(np.shape(ts))
-
-
-# Funções usadas no programa:
 
 def plotfxy(eixo_x, eixo_y):
-    plt.plot(eixo_x, eixo_y, "r") # red diamonds
-    plt.title("Grafico teste")
+    plt.plot(eixo_x, eixo_y, "r")
+    plt.title("Corda em repouso teste")
     plt.xlabel("x (m)", fontsize = 13)
     plt.ylabel("u (m)", fontsize = 13)
-    plt.save('resultado_t_0.png')
+    plt.savefig('resultado_t_0.png')
     #plt.show()
 
 def fill_eigen_values(V) :
@@ -45,7 +39,7 @@ def fill_eigen_values(V) :
         i += 1
 
 def function_target(x, n) :
-    res = (x - x**3) * math.sin(math.pi*n*x) 
+    res = (x - x**3) * math.sin(math.pi*n*x)
     return res
 
 def int_trapz(a, b, n) :

@@ -10,7 +10,7 @@ Um repositório com minhas implementações de exercícios e trabalhos da discip
 	* Condições de contorno: segundo tipo (Neumann) no lado esquerdo, terceiro tipo (Robin) no lado direito.
 * Discretização do domínio por diferenças finitas.
 * Discretização dos contornos via diferenças finitas e via nós-fictícios.
-* Esquema implícito simples e esquema da Cranck-Nicolson.
+* Esquema implícito simples e esquema de Cranck-Nicolson.
 
 
 ## Trabalho 2:
@@ -23,7 +23,7 @@ Um repositório com minhas implementações de exercícios e trabalhos da discip
 * Solução via série de Fourier
 	* Integral no cálculo dos coeficientes da série via integração numérica por regra do trapézio.
 	* Cálculo de autovalores na equação transcendental via Newton-Rhapson.
-	
+
 ## Wave Equation
 
 * Solução analítica da equação da onda
