@@ -5,10 +5,10 @@ import math
 
 
 # Variáveis do domínio da simulação e do problema:
-beta = 0.9                       # coeficiente de amortecimento
+beta = 0.1                       # coeficiente de amortecimento
 L = 1.0                          # comprimento total da corda
 ti = 0.0                         # tempo inicial da simulação
-tf = int(30.0)                   # tempo final da simulação
+tf = int(60.0)                   # tempo final da simulação
 N = 5                            # número de elementos na série de Fourier
 dx = 0.05                        # intervalo em x
 dt = 0.1                           # passo de tempo
@@ -24,11 +24,11 @@ V = np.zeros(N)                   # autovalores
 
 def plotfxy(eixo_x, eixo_y):
     plt.plot(eixo_x, eixo_y, "r")
-    plt.title("Corda em repouso teste")
+    plt.title("Configuração da corda em t = 0 s")
     plt.xlabel("x (m)", fontsize = 13)
     plt.ylabel("u (m)", fontsize = 13)
     plt.savefig('resultado_t_0.png')
-    #plt.show()
+    plt.show()
 
 def fill_eigen_values(V) :
     n = len(V)
@@ -94,14 +94,14 @@ solver();
 #plotfxy(X, T[0, :])
 
 fig = plt.figure()
-plt.title("Solucao da equação da onda, beta = 0.9")
-plt.xlabel("Comprimento", fontsize = 11)
-plt.ylabel("Deslocamento", fontsize = 11)
-ax = plt.axes(xlim=(0, 1), ylim=(-0.45, 0.45))
+plt.title("Solução da equação da onda (N=5, β=0.1)")
+plt.xlabel("Comprimento (m)", fontsize = 11)
+plt.ylabel("Deslocamento (m)", fontsize = 11)
+ax = plt.axes(xlim=(0, 1), ylim=(-0.4, 0.4))
 time_text = ax.text(0.02, 0.95, '', transform=ax.transAxes)
 line, = ax.plot([], [], lw=2)
 
-# funão de inicialização, chamada a cada frame
+# função de inicialização, chamada a cada frame
 def init():
     line.set_data([], [])
     time_text.set_text('')
@@ -117,5 +117,5 @@ def animate(i):
 
 anim = animation.FuncAnimation(fig, animate, init_func=init,frames=nsteps, interval=100, blit=True)
 
-anim.save('resultado_beta_.gif')
+anim.save('resultado_beta_01.gif')
 plt.show()
