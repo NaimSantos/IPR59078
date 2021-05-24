@@ -52,23 +52,26 @@ int main (int argc, char* argv[]){
 	linspace(X, Npoints, L, 0.0);            // escreve em X uma distribuição dos Npoints pontos de avaliação
 
 	// Chamada com todos os ts (para gerar a distribuição):
-	//vector<vector<double>> T (nsteps, std::vector<double>(Npoints, 0.0)); // linhas para tempo, colunas para posições
+	vector<vector<double>> T (nsteps, std::vector<double>(Npoints, 0.0)); // linhas para tempo, colunas para posições
 	//analytic_solver(T, X, true);
 	//const string nome {"dados_totais.dat"};
-	//savedata(T, X, nome);
+	savedata(T, X, nome);
 	
+	// Chamada para valores específicos:
+	// Um vetor para os tempos: 0, 10, 50, 100, 500, 750, 1000 e 20000
+	vector<vector<double>> T2 (8, std::vector<double>(Npoints, 0.0));
+	analytic_solver(T2, X, false);
+	
+	//Chamada para l/2
 	vector<double> TL2 (nsteps, 0);
 	analytic_solverL2(TL2);
 
-	// Chamada para valores específicos:
-	// Um vetor para os tempos: 0, 10, 50, 100, 500, 750, 1000 e 20000
-	//vector<vector<double>> T2 (8, std::vector<double>(Npoints, 0.0));
-	//analytic_solver(T2, X, false);
+
 	
 }
 void analytic_solverL2(vector<double>& T){
 	// Calcular os autovalores:
-	int nroots = 10;                                 // número de autovalores (truncamento da série de Fourier)
+	int nroots = 5;                                 // número de autovalores (truncamento da série de Fourier)
 	vector<double> EVal (nroots, 0.0);               // array onde nroots autovalores serão armazenados.
 	eigenvalueTreatment(EVal, EVal.size());          // calcular os autovalores
 
@@ -78,8 +81,8 @@ void analytic_solverL2(vector<double>& T){
 		// A Solução T(x,t) é a soma das soluções (filtrada + filtro): T(x,t) = T*(x,t) + Tf(x)
 		T[i] = T[i] + Tfx(L/2);
 	}
-	const string nome {"dados_L2.dat"};
-	savedataL2(T, nome);
+	const string nome_f {"dados_L2.dat"};
+	savedataL2(T, nome_f);
 }
 
 void analytic_solver(vector<vector<double>>& T, const vector<double>& X, bool fullmatrix){
@@ -88,7 +91,7 @@ void analytic_solver(vector<vector<double>>& T, const vector<double>& X, bool fu
 	vector<double> EVal (nroots, 0.0);               // array onde nroots autovalores serão armazenados.
 	eigenvalueTreatment(EVal, EVal.size());          // calcular os autovalores
 
-	// Avaliar a solução via ajuste de Fourier nos tempos: 0, 10, 50, 100, 500, 750 e 1000:
+
 	// A Solução T(x,t) é a soma das soluções (filtrada + filtro): T(x,t) = T*(x,t) + Tf(x)
 	static int count = 0;
 	count++;
@@ -104,9 +107,11 @@ void analytic_solver(vector<vector<double>>& T, const vector<double>& X, bool fu
 		}
 	}
 	else {
+		// Avaliar a solução via ajuste de Fourier nos tempos: 0, 10, 50, 100, 500, 750 e 1000:
+		std::cout << "\nSolucao para um unico tempo" << std::endl; 
 		// Solução apenas para tempos requeridos:
 		//vector<int> Tpoints {0, 100};
-		vector<int> Tpoints {0, 5, 50, 100, 500, 750, 1000, 10000};
+		vector<int> Tpoints {0, 10, 50, 100, 500, 750, 1000, 20000};
 		auto tam = Tpoints.size();
 		
 		for (int i = 0; i < tam; i++){
@@ -117,7 +122,7 @@ void analytic_solver(vector<vector<double>>& T, const vector<double>& X, bool fu
 				T[i][j] = T[i][j] + Tfx(j*dx);
 			}
 		}
-		string nome {"dados_parciais.dat"};
+		string nome {"dados_parciais_v2.dat"};
 		savetoplot(T, X, Tpoints, nome);
 	}	
 }
@@ -237,7 +242,7 @@ void savedata(const vector<vector<double>>& T, const vector<double>& X, const st
 	}
 }
 void savedataL2(const vector<double>& T, const string& filename){
-	std::cout << "\n1Function SaveData2 called" << std::endl;
+	std::cout << "\nFunction SaveDataL2 called" << std::endl;
 	// Salvar os resultados em um arquivo:
 	std::fstream printer {filename, std::ios::out|std::ios::trunc};
 	printer << "Temperatura em x = L/2\n";
