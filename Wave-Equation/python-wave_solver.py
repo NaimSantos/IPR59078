@@ -5,18 +5,18 @@ import math
 
 
 # Variáveis do domínio da simulação e do problema:
-beta = 0.1                       # coeficiente de amortecimento
-L = 1.0                          # comprimento total da corda
-ti = 0.0                         # tempo inicial da simulação
-tf = int(60.0)                   # tempo final da simulação
-N = 5                            # número de elementos na série de Fourier
-dx = 0.05                        # intervalo em x
-dt = 0.1                           # passo de tempo
-npoints  = int(L/dx + 1)         # número de pontos de avaliação de x
-nsteps = int((tf - ti) / dt)     # número de passos de tempo
+beta = 0.1                        # coeficiente de amortecimento
+L = 1.0                           # comprimento total da corda
+ti = 0.0                          # tempo inicial da simulação
+tf = int(60.0)                    # tempo final da simulação
+N = 5                             # número de elementos na série de Fourier
+dx = 0.05                         # intervalo em x
+dt = 0.1                          # passo de tempo
+npoints  = int(L/dx + 1)          # número de pontos de avaliação de x
+nsteps = int((tf - ti) / dt)      # número de passos de tempo
 
 # Arrays utilizados
-T = np.zeros((nsteps, npoints))   # N elementos, 100 tempos
+T = np.zeros((nsteps, npoints))   # nsteps instantes de tempo por npoints pontos em x
 X = np.linspace(0.0, L, npoints)  # posições em x
 ts = np.linspace(ti, tf, nsteps)  # tempos
 V = np.zeros(N)                   # autovalores
@@ -32,7 +32,7 @@ def plotfxy(eixo_x, eixo_y):
 
 def fill_eigen_values(V) :
     n = len(V)
-    print("Numero de autovalores usados: ", n)
+    print("Número de autovalores usados: ", n)
     i = 0
     while i < n :
         V[i]  = ((i+1)*(math.pi))**2

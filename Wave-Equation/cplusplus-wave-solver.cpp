@@ -21,12 +21,12 @@ void save_plot(const vector<vector<double>>& U, const vector<double>& X, const s
 
 constexpr double beta {0.5};
 constexpr double L {1.0};
-constexpr double ti {0.0};                                   // tempo inicial da simulação
-constexpr double tf {5.0};                                 // tempo final da simulação
-constexpr auto dt {1};                                       // passo temporal
-constexpr auto nsteps = static_cast<int>((tf-ti)/dt) + 1;    // número de passos de tempo
-constexpr auto dx {0.01};                                     // passo espacial
-constexpr auto npoints = L/dx + 1;                           // número de pontos avaliados para x 
+constexpr double ti {0.0};                                  // tempo inicial da simulação
+constexpr double tf {5.0};                                  // tempo final da simulação
+constexpr auto dt {1};                                      // passo temporal
+constexpr auto nsteps = static_cast<int>((tf-ti)/dt) + 1;   // número de passos de tempo
+constexpr auto dx {0.01};                                   // passo espacial
+constexpr auto npoints = L/dx + 1;                          // número de pontos avaliados para x
 constexpr int N {5};                                        // número de termos no somatório da Série de Fourier
 constexpr auto NPI = 4*std::atan(1);
 
@@ -35,11 +35,11 @@ int main (int argc, char* argv[]){
 	print_parameters();
 	vector<vector<double>> U_xt (nsteps, std::vector<double>(npoints, 0.0)); // vetor para armazenamento dos resultados
 	vector<double> Values (N, 0.0);                                          // vetor com os auto valores
-	vector<double> X (npoints, 0.0);			                             // vetor com os pontos de avaliação de em X (para plotar);
-	
+	vector<double> X (npoints, 0.0);                                         // vetor com os pontos de avaliação de em X (para plotar);
+
 	linspace(X, npoints, L);
 	fill_eingenvalues(Values, N);
-	
+
 	// Solução em todos os tempos
 	for (int i = 0; i < nsteps; i++){
 		std::cout << "Current time step  = " << i << std::endl;
@@ -49,8 +49,8 @@ int main (int argc, char* argv[]){
 		}
 	}
 	std::string file_name {"data_full.dat"};
-	std::string file_name2 {"data_to_plot.dat"};
-	save_data(U_xt, X, file_name);
+	std::string file_name2 {"dados_N5.dat"};
+	//save_data(U_xt, X, file_name);
 	save_plot(U_xt, X, file_name2);
 }
 
@@ -78,7 +78,6 @@ double fourier_adjust(double x, double t, const vector<double>& Values){
 		res_4 = std::sin(w_n*t);
 		res_5 = std::sin(n*NPI*x);
 		res += (res_1*res_2 + res_3*res_4)*res_5;
-		
 		//std::cout << w_n << " ";
 	}
 	//std::cout << std::endl;
@@ -94,7 +93,7 @@ double coef_an(const int n){
 // Integração numérica pela regra do trapézio
 double int_trapz(double a, double b, const int n){
 	double res {0.0};
-	const double h = 0.00005;                                            // passo da integração numérica
+	const double h = 0.00005;                                             // passo da integração numérica
 	const auto m = static_cast<int>( std::floor((std::fabs(b - a)) / h));
 
 	for (int k = 0; k < m - 1; k++){
@@ -137,13 +136,12 @@ void save_plot(const vector<vector<double>>& T, const vector<double>& X, const s
 
 	auto m = (T[0]).size();
 	auto n = T.size();
-	
-	std::cout << "\nm = " << m << "\t n = " << n << std::endl;
+
 	printer << "Solucao analitica da equacao da onda\n";
 	printer << "X";
 	for (int k=0; k < n; k++)
 		printer << std::setw(12) << " T=" << k*dt;
-	
+
 	for (int i = 0; i < m; i++){
 		printer << "\n" << X[i] << ' ';
 		for (int j = 0; j < n; j++){
