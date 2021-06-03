@@ -10,6 +10,17 @@
 using std::vector;
 using std::string;
 
+double beta(double x);
+double bissection(double a, double b);
+double integrate(std::function<double (double, int, vector<double>& )> f, double a, double b, int index, double int_step);
+double psi(double x, int index, vector<double>& D);
+double psi2(double x, int index, vector<double>& D);
+double psin(double x, int index, vector<double>& D, const vector<double>& ni);
+double Tf(double x);
+double fi_int(double x, int index, vector<double>& D, const vector<double>& ni);
+double f(double t, int index, vector<double>& D);
+double run_t(double t, vector<double>& D, vector<double>& fi, vector<double>& gi, vector<double>& A_int, vector<double>& Tf_vec, vector<double>& ni, vector<double>& x);
+
 constexpr auto k {0.6};
 constexpr auto rho {600};
 constexpr auto cp {1200};
@@ -110,7 +121,7 @@ int main (int argc, char* argv[]){
 	vector<double> A_int (nodes_t + 1, 0.0);
 
 	for (int i=0; i < N; i++){
-		T_t[i] = run_t(t[i], A_int);
+		T_t[i] = run_t(t[i], A_int, D, fi, gi, Tf_vec, ni, x);
 	}
 	/*
 	A_int = np.zeros(N)
@@ -122,7 +133,7 @@ int main (int argc, char* argv[]){
 	for (int i=0; i < nodes_x; i++){
 		double sum = 0.0;
 		for (int k=0; k < N; k++){
-			sum = sum + psin(x[i], k) * A_int[k];
+			sum = sum + psin(x[i], k, D, ni) * A_int[k];
 		}
 		T[i][1] = sum;
 	}
@@ -148,7 +159,7 @@ double bissection(double a, double b){
 	}
 	return c;
 }
-double integrate(std::function<double>(double) f, double a, double b, int index, double int_step){
+double integrate(std::function<double (double, int, vector<double>& )> f, double a, double b, int index, double int_step){
 	auto size = (b - a)/int_step;
 	double sum = 0.0;
 	for (int i = 0; i < int_step-1; i++){
@@ -177,18 +188,17 @@ double fi_int(double x, int index, vector<double>& D, const vector<double>& ni){
 double f(double t, int index, vector<double>& D){
 	return std::exp(t * alpha * D[index]*D[index]);		
 }
-double run_t(double t, vector<double>& A_int){
+double run_t(double t, vector<double>& D, vector<double>& fi, vector<double>& gi, vector<double>& A_int, vector<double>& Tf_vec, vector<double>& ni, vector<double>& x){
 	for (int i=0; i < N; i++){
 		A_int[i] = std::exp(-alpha * D[i]*D[i] * t) * (fi[i] + gi[i] * integrate(f, 0., t, i, 1024*4));
 	}
 
+	double sum = 0;
+	for (int k=0; k < N; k++){
+		sum = sum + psin(x[nodes_x/2], k, D, ni) * A_int[k];
+	}
 
-	sum = 0
-	for k in range(N):
-		sum = sum + psin(x[nodes_x/2], k) * A_int[k]
-		#print(A_int[k])
-
-	return sum + Tf_vec[1]
+	return sum + Tf_vec[1];
 }
 
 /*
