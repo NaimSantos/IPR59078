@@ -8,10 +8,10 @@ import math
 beta = 0.1                        # coeficiente de amortecimento
 L = 6                             # comprimento total da corda
 ti = 0.0                          # tempo inicial da simulação
-tf = int(24.0)                    # tempo final da simulação
-N = 100                           # número de elementos na série de Fourier
-dx = 0.2                          # intervalo em x
-dt = 0.25                         # passo de tempo
+tf = int(12.0)                    # tempo final da simulação
+N = 200                           # número de elementos na série de Fourier
+dx = 0.1                          # intervalo em x
+dt = 0.12                         # passo de tempo
 npoints  = int(L/dx + 1)          # número de pontos de avaliação de x
 nsteps = int((tf - ti) / dt)      # número de passos de tempo
 
@@ -68,8 +68,7 @@ def solver() :
 
 def fourier_adjust(x, t) :
     print("Fourier Adjust Called.    x, t, =", x, t)
-    res1, res2, res3, = 0.0, 0.0, 0.0,
-    res = 0.0
+    res, res1, res2, res3, = 0.0, 0.0, 0.0, 0.0
     n = 1
     while n < N :
         res1 = coef_an(n)
@@ -78,7 +77,6 @@ def fourier_adjust(x, t) :
         res = res + (res1*res2*res3)
         n += 1
     return res
-
 
 
 solver();
