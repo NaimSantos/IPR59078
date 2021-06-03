@@ -84,7 +84,7 @@ int main (int argc, char* argv[]){
 	vector<double> fi (N, 0.0);
 	for (int i=0; i < N; i++){
 		//fi[i] = integrate(fi_int, 0, l, i, 1024*4)
-		I = quad(fi_int, 0, l, args=(i));
+		I = quad(fi_int, 0, l, args=(i)); //o que seria isso
 		fi[i] = I[0];
 	}
 
