@@ -12,10 +12,10 @@ using std::string;
 
 double beta(double x);
 double bissection(double a, double b);
-double integrate(std::function<double (double, int, vector<double>& )> f, double a, double b, int index, double int_step);
+double integrate(std::function<double (double, int, vector<double>&, vector<double>&)> f, double a, double b, int index, double int_step, vector<double>& D, vector<double>& ni);
 double psi(double x, int index, vector<double>& D);
 double psi2(double x, int index, vector<double>& D);
-double psin(double x, int index, vector<double>& D, const vector<double>& ni);
+double psin(double x, int index, vector<double>& D, vector<double>& ni);
 double Tf(double x);
 double fi_int(double x, int index, vector<double>& D, const vector<double>& ni);
 double f(double t, int index, vector<double>& D);
@@ -93,24 +93,24 @@ int main (int argc, char* argv[]){
 	}
 
 	vector<double> fi (N, 0.0);
+	/*
 	for (int i=0; i < N; i++){
 		//fi[i] = integrate(fi_int, 0, l, i, 1024*4)
 		I = quad(fi_int, 0, l, args=(i)); //o que seria isso
 		fi[i] = I[0];
 	}
-
+	*/
 	vector<double> giaa (N, 0.0);
 	for (int i=0; i < N; i++){
-		giaa[i] = P * integrate(psin, 0, l, i, 1024*4);
+		giaa[i] = P * integrate(psin, 0, l, i, 1024*4, D, ni);
 	}
 
 	vector<double> gia (N, 0.0);
 	auto derivate_step = 0.0000000001;
 	
-	
 	for (int i=0; i < N; i++){
-		gia[i] = phil * (k * (psin(l+derivate_step, i) - psin(l, i))/derivate_step - psin(l, i)) / (alfal + betal);
-		gia[i] = gia[i] + phi0 * (k * (psin(l+derivate_step, i) - psin(l, i))/derivate_step - psin(l, i)) / (alfa0 + beta0);
+		gia[i] = phil * (k * (psin(l+derivate_step, i, D, ni) - psin(l, i, D, ni))/derivate_step - psin(l, i, D, ni)) / (alfal + betal);
+		gia[i] = gia[i] + phi0 * (k * (psin(l+derivate_step, i, D, ni) - psin(l, i, D, ni))/derivate_step - psin(l, i, D, ni)) / (alfa0 + beta0);
 	}
 	
 	vector<double> gi (N, 0.0);
@@ -159,11 +159,11 @@ double bissection(double a, double b){
 	}
 	return c;
 }
-double integrate(std::function<double (double, int, vector<double>& )> f, double a, double b, int index, double int_step){
+double integrate(std::function<double (double, int, vector<double>&, vector<double>&)> f, double a, double b, int index, double int_step, vector<double>& D, vector<double>& ni){
 	auto size = (b - a)/int_step;
 	double sum = 0.0;
 	for (int i = 0; i < int_step-1; i++){
-		sum = sum + (f(i * size, index) + f((i+1)*size, index))/2;
+		sum = sum + (f(i * size, index, D, ni) + f((i+1)*size, index, D, ni))/2;
 	}
 	sum = sum * size;
 	return sum;
@@ -174,7 +174,7 @@ double psi(double x, int index, vector<double>& D){
 double psi2(double x, int index, vector<double>& D){
 	return std::pow(std::cos(D[index]*x), 2);
 }
-double psin(double x, int index, vector<double>& D, const vector<double>& ni){
+double psin(double x, int index, vector<double>& D, vector<double>& ni){
 	return psi(x, index, D) / std::sqrt(ni[index]);
 }
 double Tf(double x){
