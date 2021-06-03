@@ -9,8 +9,8 @@ beta = 0.1                        # coeficiente de amortecimento
 L = 6                           # comprimento total da corda
 ti = 0.0                          # tempo inicial da simulação
 tf = int(24.0)                    # tempo final da simulação
-N = 3                             # número de elementos na série de Fourier
-dx = 0.1                         # intervalo em x
+N = 100                             # número de elementos na série de Fourier
+dx = 0.2                         # intervalo em x
 dt = 0.25                          # passo de tempo
 npoints  = int(L/dx + 1)          # número de pontos de avaliação de x
 nsteps = int((tf - ti) / dt)      # número de passos de tempo
@@ -62,7 +62,7 @@ def int_trapz(a, b, n) :
     return res
 
 def coef_an(n) :
-    return (2/L)*int_trapz(0, L, n)
+    return (2/L)*(int_trapz(0, 2, n) + int_trapz(2, 4, n) + int_trapz(4, 6, n))
 
 def solver() :
     i = 0
@@ -94,7 +94,7 @@ print(T[1, :])
 plotfxy(X, T[0, :])
 
 fig = plt.figure()
-plt.title("Solução da equação da onda (N=3)")
+plt.title("Solução da equação da onda (N=100)")
 plt.xlabel("Comprimento (m)", fontsize = 11)
 plt.ylabel("Deslocamento (m)", fontsize = 11)
 ax = plt.axes(xlim=(0, 6), ylim=(-1.5, 1.5))
