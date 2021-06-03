@@ -8,7 +8,7 @@ import math
 beta = 0.1                        # coeficiente de amortecimento
 L = 6                           # comprimento total da corda
 ti = 0.0                          # tempo inicial da simulação
-tf = int(12.0)                    # tempo final da simulação
+tf = int(24.0)                    # tempo final da simulação
 N = 3                             # número de elementos na série de Fourier
 dx = 0.1                         # intervalo em x
 dt = 0.25                          # passo de tempo
@@ -87,16 +87,17 @@ def fourier_adjust(x, t) :
     return res
 
 #fill_eigen_values(V);
-print(V)
+#print(V)
 solver();
-
+print(T[0, :])
+print(T[1, :])
 plotfxy(X, T[0, :])
 
 fig = plt.figure()
 plt.title("Solução da equação da onda (N=3)")
 plt.xlabel("Comprimento (m)", fontsize = 11)
 plt.ylabel("Deslocamento (m)", fontsize = 11)
-ax = plt.axes(xlim=(0, 6), ylim=(-1.0, 1.0))
+ax = plt.axes(xlim=(0, 6), ylim=(-1.5, 1.5))
 time_text = ax.text(0.02, 0.95, '', transform=ax.transAxes)
 line, = ax.plot([], [], lw=2)
 
@@ -108,7 +109,6 @@ def init():
 
 # função para a animação
 def animate(i):
-    print("animate called i =", i)
     x = X
     y = T[i]
     time_text.set_text('t = % .01f s' % ts[i])
