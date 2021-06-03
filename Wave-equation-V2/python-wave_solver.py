@@ -6,12 +6,12 @@ import math
 
 # Variáveis do domínio da simulação e do problema:
 beta = 0.1                        # coeficiente de amortecimento
-L = 6                           # comprimento total da corda
+L = 6                             # comprimento total da corda
 ti = 0.0                          # tempo inicial da simulação
 tf = int(24.0)                    # tempo final da simulação
-N = 100                             # número de elementos na série de Fourier
-dx = 0.2                         # intervalo em x
-dt = 0.25                          # passo de tempo
+N = 100                           # número de elementos na série de Fourier
+dx = 0.2                          # intervalo em x
+dt = 0.25                         # passo de tempo
 npoints  = int(L/dx + 1)          # número de pontos de avaliação de x
 nsteps = int((tf - ti) / dt)      # número de passos de tempo
 
@@ -30,13 +30,6 @@ def plotfxy(eixo_x, eixo_y):
     plt.savefig('resultado_t_0.png')
     plt.show()
 
-def fill_eigen_values(V) :
-    n = len(V)
-    print("Número de autovalores usados: ", n)
-    i = 0
-    while i < n :
-        V[i]  = ((i+1)*(math.pi))**2
-        i += 1
 
 def function_target(x, n) :
     if (x < 2) :
@@ -74,7 +67,7 @@ def solver() :
         i += 1
 
 def fourier_adjust(x, t) :
-    print("Fourier Adjust Called... x, t", x, t)
+    print("Fourier Adjust Called.    x, t, =", x, t)
     res1, res2, res3, = 0.0, 0.0, 0.0,
     res = 0.0
     n = 1
@@ -86,11 +79,9 @@ def fourier_adjust(x, t) :
         n += 1
     return res
 
-#fill_eigen_values(V);
-#print(V)
+
+
 solver();
-print(T[0, :])
-print(T[1, :])
 plotfxy(X, T[0, :])
 
 fig = plt.figure()
