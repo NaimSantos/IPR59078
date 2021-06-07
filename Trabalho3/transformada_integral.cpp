@@ -5,7 +5,6 @@
 #include <vector>
 #include <functional>
 #include <string>
-#include <cassert>
 
 using std::vector;
 using std::string;
@@ -144,6 +143,18 @@ int main (int argc, char* argv[]){
 	}
 
 }
+double int_trapz(std::function<double (double)> f, double a, double b, double h){
+	double res {0.0};
+	const auto n = static_cast<int>( std::floor((std::fabs(b - a)) / h));
+	for (int i = 0; i < n - 1; i++){
+		res += f( a + i*h);
+	}
+	res += (f(a) + f(b) ) / 2;
+	res *= h;
+
+	return res;
+}
+
 
 double beta(double x){
 	return x * std::tan(x * l) - H;
