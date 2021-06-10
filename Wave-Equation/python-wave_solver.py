@@ -5,10 +5,10 @@ import math
 
 
 # Variáveis do domínio da simulação e do problema:
-beta = 0.1                        # coeficiente de amortecimento
+beta = 0.9                        # coeficiente de amortecimento
 L = 1.0                           # comprimento total da corda
 ti = 0.0                          # tempo inicial da simulação
-tf = int(60.0)                    # tempo final da simulação
+tf = int(7.0)                    # tempo final da simulação
 N = 5                             # número de elementos na série de Fourier
 dx = 0.05                         # intervalo em x
 dt = 0.1                          # passo de tempo
@@ -31,8 +31,9 @@ def plotfxy(eixo_x, eixo_y):
     plt.show()
 
 def fill_eigen_values(V) :
+    print("\nPreenchendo auto valores...")
     n = len(V)
-    print("Número de autovalores usados: ", n)
+    print("\nNúmero de autovalores usados: ", n)
     i = 0
     while i < n :
         V[i]  = ((i+1)*(math.pi))**2
@@ -60,8 +61,10 @@ def coef_an(n) :
     return 2*int_trapz(0, L, n)
 
 def solver() :
+    print("\nInicializando o solver...")
     i = 0
     while i < (nsteps) :
+        print("\nInstante de tempo = ", i*dt)
         j = 0
         while j < (npoints) :
             T[i][j] = fourier_adjust(j*dx, i*dt)
@@ -88,17 +91,28 @@ def fourier_adjust(x, t) :
     return res
 
 fill_eigen_values(V);
-print(V)
 solver();
 
+
+ymax = np.amax(T)
+ymin = np.amin(T)
+xmax = np.amax(X)
+xmin = np.amin(X)
+
+print("\nx max = ", xmax)
+print("\nx min = ", xmin)
+print("\ny max = ", ymax)
+print("\ny min = ", ymin)
 #plotfxy(X, T[0, :])
 
 fig = plt.figure()
 plt.title("Solução da equação da onda (N=5, β=0.1)")
 plt.xlabel("Comprimento (m)", fontsize = 11)
 plt.ylabel("Deslocamento (m)", fontsize = 11)
-ax = plt.axes(xlim=(0, 1), ylim=(-0.4, 0.4))
+ax = plt.axes(xlim=(xmin, xmax), ylim=(ymin, ymax))
 time_text = ax.text(0.02, 0.95, '', transform=ax.transAxes)
+ax.grid("on")
+ax.axis("off")
 line, = ax.plot([], [], lw=2)
 
 # função de inicialização, chamada a cada frame
@@ -117,5 +131,5 @@ def animate(i):
 
 anim = animation.FuncAnimation(fig, animate, init_func=init,frames=nsteps, interval=100, blit=True)
 
-anim.save('resultado_beta_01.gif')
+anim.save('resultado_beta_09.gif')
 plt.show()
